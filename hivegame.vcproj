@@ -173,6 +173,15 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{29BB1E90-1FB5-440B-B861-082E703226DD}"
+			CopyLocal="false"
+			CopyLocalDependencies="false"
+			UseInBuild="false"
+			UseDependenciesInBuild="false"
+			CopyLocalSatelliteAssemblies="false"
+			RelativePathToProject=".\pyhivegame.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
