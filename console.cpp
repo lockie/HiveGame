@@ -25,8 +25,7 @@ bool Console::ExecCallback::InitPython(iObjectRegistry *obj_reg)
 	}
 	// TODO : LT_OBJDIR
 	if(!python->RunText("import sys; sys.path.append('.libs')") ||
-		!python->RunText("from cspace import *") ||
-		!python->LoadModule("cshelper"))
+		!python->RunText("from cspace import *"))
 	{
 		csReport(obj_reg,
 			CS_REPORTER_SEVERITY_ERROR, "HiveGame.Console",

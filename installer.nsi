@@ -64,8 +64,9 @@ File /a "Release\_pyhivegame.pyd"
 File /a "Release\pyhivegame.py"
 File /a "vfs.cfg"
 File /a "${MUI_FILE}.cfg"
+File /a "autoexec.py"
 File /a "$%VS80COMNTOOLS%\..\..\VC\redist\x86\Microsoft.VC80.CRT\*"
-; TODO : вся эта каша не нужна, оставить только нужное
+; TODO : РІСЃСЏ СЌС‚Р° РєР°С€Р° РЅРµ РЅСѓР¶РЅР°, РѕСЃС‚Р°РІРёС‚СЊ С‚РѕР»СЊРєРѕ РЅСѓР¶РЅРѕРµ
 File /a "C:\Projects\CrystalSpace\crystalspace-src-1.4.0\out\release8\bin\*.dll"
 File /a "C:\Projects\CrystalSpace\cel-src-1.4.0\out\release8\bin\*.dll"
 File /a "C:\Projects\CrystalSpace\CrystalSpaceLibs\dlls\*-cs.dll"

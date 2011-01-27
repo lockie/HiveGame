@@ -106,6 +106,15 @@ bool HiveGame::Setup()
 		if(!console->Initialize(object_reg))
 			ReportError("Failed to initialize console!");
 	}
+
+	csRef<iScript> python = csQueryRegistryOrLoad<iScript>(object_reg,
+		"crystalspace.script.python");
+	if(!python)
+	{
+		ReportError("Unable to load python interpreter!");
+		return false;
+	}
+
 	if(enable_logging)
 	{
 		listener = csQueryRegistry<iStandardReporterListener>(object_reg);
@@ -121,6 +130,8 @@ bool HiveGame::Setup()
 		time_str += ctime(&curr_time);
 		csReporterHelper::Report(object_reg, CS_REPORTER_SEVERITY_NOTIFY, "HiveGame", time_str);
 	}
+
+	python->LoadModuleNative(".", "autoexec");
 
 	return true;
 }
