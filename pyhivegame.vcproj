@@ -193,6 +193,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\player.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Debug\pyhivegame_wrap.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;_WINDLL;_UNICODE;UNICODE;PYHIVEGAME_EXPORTS;CS_WIN32_CSCONFIG;CS_DEBUG;CS_BUILD_SHARED_LIBS;$(NOINHERIT)"
+						UndefinePreprocessorDefinitions="_DEBUG"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\Release\pyhivegame_wrap.cpp"
 				>
 				<FileConfiguration
@@ -217,27 +242,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Debug\pyhivegame_wrap.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;_WINDLL;_UNICODE;UNICODE;PYHIVEGAME_EXPORTS;CS_WIN32_CSCONFIG;CS_DEBUG;CS_BUILD_SHARED_LIBS;$(NOINHERIT)"
-						UndefinePreprocessorDefinitions="_DEBUG"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\util.cpp"
 				>
 			</File>
@@ -253,6 +257,10 @@
 			</File>
 			<File
 				RelativePath=".\map.h"
+				>
+			</File>
+			<File
+				RelativePath=".\player.h"
 				>
 			</File>
 		</Filter>
