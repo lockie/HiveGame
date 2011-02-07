@@ -80,6 +80,7 @@ File /a "C:\Projects\CrystalSpace\crystalspace-src-1.4.0\scripts\python\frozen\c
 File /a "C:\Projects\CrystalSpace\crystalspace-src-1.4.0\scripts\python\cshelper.py"
 File /a "C:\Projects\CrystalSpace\crystalspace-src-1.4.0\scripts\python\csutils.py"
 File /a "C:\Projects\CrystalSpace\crystalspace-src-1.4.0\out\release8\bin\*.pyd"
+File /a "$%VS80COMNTOOLS%\..\..\VC\redist\x86\Microsoft.VC80.CRT\*"
 
 
 ;create desktop shortcut
