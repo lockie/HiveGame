@@ -12,7 +12,7 @@
 #include <behaviourlayer/bl.h>
 
 
-Player* instance = NULL;
+Player* player_instance = NULL;
 
 Player::Player(/*const char* model*/)
 {
@@ -63,7 +63,7 @@ Player::Player(/*const char* model*/)
 	pcinput->Bind ("q", "cammode");
 	pcinput->Bind ("e", "drop");
 
-	instance = this;
+	player_instance = this;
 }
 
 Player::~Player()
@@ -77,9 +77,9 @@ csPtr<iCelEntity> Player::Entity()
 
 Player* Player::GetPlayer()
 {
-	if(!instance)
-		instance = new Player();
-	return instance;
+	if(!player_instance)
+		player_instance = new Player();
+	return player_instance;
 }
 
 bool Player::SetModel(const char* filename)

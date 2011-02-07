@@ -5,7 +5,7 @@
 #include <propclass/camera.h>
 
 
-Map* instance = NULL;
+Map* map_instance = NULL;
 
 Map::Map(const char* _name)
 {
@@ -63,7 +63,7 @@ Map::Map(const char* _name)
 	}
 
 	name = _name;
-	instance = this;
+	map_instance = this;
 }
 
 Map::~Map()
@@ -78,14 +78,14 @@ const char* Map::Name() const
 
 Map* Map::CurrentMap()
 {
-	if(!instance)
+	if(!map_instance)
 		LoadMap("");
-	return instance;
+	return map_instance;
 }
 
 void Map::LoadMap(const char* name)
 {
-	delete instance;
-	instance = new Map(name);
+	delete map_instance;
+	map_instance = new Map(name);
 }
 
