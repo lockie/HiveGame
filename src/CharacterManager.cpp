@@ -15,7 +15,7 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "CharacterManager.h"
+#include "CharacterManager.hpp"
 
 #include <OgreSceneManager.h>
 

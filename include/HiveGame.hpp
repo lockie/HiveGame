@@ -18,7 +18,7 @@
 #ifndef __HiveGame_h__
 #define __HiveGame_h__
 
-#include "BeeEngine.h"
+#include "BeeEngine.hpp"
 
 
 class HiveGame : public BeeEngine

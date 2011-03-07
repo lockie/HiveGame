@@ -72,9 +72,9 @@ include_directories(${OGRE_INCLUDE_DIRS}
 
 
 set(HDRS
-	include/BeeEngine.h
-	include/HiveGame.h
-	include/CharacterManager.h
+	include/BeeEngine.hpp
+	include/HiveGame.hpp
+	include/CharacterManager.hpp
 )
 
 set(SRCS

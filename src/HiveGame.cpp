@@ -15,7 +15,7 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "HiveGame.h"
+#include "HiveGame.hpp"
 
 using namespace std;
 using namespace Ogre;

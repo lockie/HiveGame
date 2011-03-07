@@ -39,7 +39,7 @@
 # include <windows.h>
 #endif
 
-#include "CharacterManager.h"
+#include "CharacterManager.hpp"
 
 
 class BeeEngine : public Ogre::FrameListener, public Ogre::WindowEventListener,

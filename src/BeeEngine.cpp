@@ -20,7 +20,7 @@
 #define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem.hpp>
 
-#include "BeeEngine.h"
+#include "BeeEngine.hpp"
 
 using namespace std;
 using namespace boost::filesystem;
