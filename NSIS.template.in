@@ -155,6 +155,7 @@ Var AR_RegFlags
 ;Interface Settings
 
   !define MUI_HEADERIMAGE
+  !define MUI_HEADERIMAGE_RIGHT
   !define MUI_ABORTWARNING
     
 ;--------------------------------
