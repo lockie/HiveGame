@@ -35,7 +35,7 @@ void HiveGame::createScene()
 	mSceneMgr->setAmbientLight(ColourValue(0, 0, 0));
 	Light* directionalLight = mSceneMgr->createLight("sunLight");
 	directionalLight->setType(Light::LT_DIRECTIONAL);
-	directionalLight->setDiffuseColour(ColourValue(.4f, .29f, .13f));
+	directionalLight->setDiffuseColour(ColourValue(.8f, .58f, .26f));
 	directionalLight->setSpecularColour(ColourValue(.21f, .06f, .22f));
 	directionalLight->setDirection(Vector3(0, -10, -10));
 	mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
@@ -80,9 +80,9 @@ void HiveGame::createScene()
 	//CompositorManager::getSingleton().addCompositor(mViewport, "HDR");
 	//CompositorManager::getSingleton().setCompositorEnabled(mViewport,
 	//	"HDR", true);
-	CompositorManager::getSingleton().addCompositor(mViewport, "Bloom");
-	CompositorManager::getSingleton().setCompositorEnabled(mViewport,
-		"Bloom", true);
+	//CompositorManager::getSingleton().addCompositor(mViewport, "Bloom");
+	//CompositorManager::getSingleton().setCompositorEnabled(mViewport,
+	//	"Bloom", true);
 
 }
 
