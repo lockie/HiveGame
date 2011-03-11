@@ -194,6 +194,20 @@ void CharacterManager::updateBody(Real deltaTime)
 		mBodyNode->translate( 0, 0,
 			deltaTime * RUN_SPEED * mAnims[mBaseAnimID]->getWeight(),
 			Node::TS_LOCAL );
+
+		// грязнохак для того, чтобы не вылезать за пределы сцены
+		Real scene_size = 45.0;
+		Vector3 pos = mBodyNode->getPosition();
+		if(abs(pos.x) > scene_size)
+		{
+			pos.x = scene_size * pos.x / abs(pos.x);
+			mBodyNode->setPosition(pos);
+		}
+		if(abs(pos.z) > scene_size)
+		{
+			pos.z = scene_size * pos.z / abs(pos.z);
+			mBodyNode->setPosition(pos);
+		}
 	}
 	if(mBaseAnimID == ANIM_JUMP_LOOP)
 	{
