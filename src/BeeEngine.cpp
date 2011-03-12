@@ -288,6 +288,10 @@ bool BeeEngine::loadPlugins(const String& plugins_dir)
 # endif
 #endif
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+	mRoot->loadPlugin(plugins_dir + "RenderSystem_Direct3D9" + debug_suffix);
+	// TODO : Direct3D 10 и 11
+#endif
 	mRoot->loadPlugin(plugins_dir + "RenderSystem_GL" + debug_suffix);
 	mRoot->loadPlugin(plugins_dir + "Plugin_CgProgramManager" + debug_suffix);
 
