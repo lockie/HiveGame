@@ -47,7 +47,7 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 		# добавляет префикс "lib". Далее - костылик для исправления.
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "")
 	endif()
-	set(Boost_ADDITIONAL_VERSIONS "1.44" "1.44.0")
+	set(Boost_ADDITIONAL_VERSIONS "1.46" "1.46.1" "1.44" "1.44.0")
 	# Компоненты, которым нужна линковка. NB: сюда не включаются компоненты, состоящие из одних заголовков
 	set(OGRE_BOOST_COMPONENTS system filesystem)
 	find_package(Boost COMPONENTS ${OGRE_BOOST_COMPONENTS} QUIET)
