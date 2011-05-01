@@ -191,7 +191,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.txt")
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 SetOutPath '$INSTDIR\\\\bin'
 CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\HiveGame.lnk' '$INSTDIR\\\\bin\\\\HiveGame.exe'
-File /a '$%VS80COMNTOOLS%\\\\..\\\\..\\\\VC\\\\redist\\\\x86\\\\Microsoft.VC80.CRT\\\\*'
+File /a '$%VS90COMNTOOLS%\\\\..\\\\..\\\\VC\\\\redist\\\\x86\\\\Microsoft.VC90.CRT\\\\*'
 IfFileExists $INSTDIR\\\\* +2
 CreateDirectory $INSTDIR
 IfFileExists $INSTDIR\\\\data.zip  success
