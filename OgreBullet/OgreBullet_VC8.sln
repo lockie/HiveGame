@@ -1,0 +1,39 @@
+
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreBulletDynamics", "Dynamics\scripts\VC8\OgreBulletDynamics_VC8.vcproj", "{022634CE-F06A-4F71-AA07-3CE7BB1841AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A} = {791F594F-FF44-49D1-A882-FF4DB0DCD92A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreBulletCollisions", "Collisions\scripts\VC8\OgreBulletCollisions_VC8.vcproj", "{791F594F-FF44-49D1-A882-FF4DB0DCD92A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dynamics_Demos", "Demos\Dynamics_Demos\scripts\VC8\Ogre_Bullet_Dynamics_Demos_VC8.vcproj", "{96F6C2AA-6145-435B-B6F1-77AB7026BB29}"
+	ProjectSection(ProjectDependencies) = postProject
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A} = {791F594F-FF44-49D1-A882-FF4DB0DCD92A}
+		{022634CE-F06A-4F71-AA07-3CE7BB1841AE} = {022634CE-F06A-4F71-AA07-3CE7BB1841AE}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{022634CE-F06A-4F71-AA07-3CE7BB1841AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{022634CE-F06A-4F71-AA07-3CE7BB1841AE}.Debug|Win32.Build.0 = Debug|Win32
+		{022634CE-F06A-4F71-AA07-3CE7BB1841AE}.Release|Win32.ActiveCfg = Release|Win32
+		{022634CE-F06A-4F71-AA07-3CE7BB1841AE}.Release|Win32.Build.0 = Release|Win32
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A}.Debug|Win32.Build.0 = Debug|Win32
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A}.Release|Win32.ActiveCfg = Release|Win32
+		{791F594F-FF44-49D1-A882-FF4DB0DCD92A}.Release|Win32.Build.0 = Release|Win32
+		{96F6C2AA-6145-435B-B6F1-77AB7026BB29}.Debug|Win32.ActiveCfg = Debug|Win32
+		{96F6C2AA-6145-435B-B6F1-77AB7026BB29}.Debug|Win32.Build.0 = Debug|Win32
+		{96F6C2AA-6145-435B-B6F1-77AB7026BB29}.Release|Win32.ActiveCfg = Release|Win32
+		{96F6C2AA-6145-435B-B6F1-77AB7026BB29}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

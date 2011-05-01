@@ -15,6 +15,7 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "World.hpp"
 #include "CharacterManager.hpp"
 
 #include <OgreSceneManager.h>
@@ -89,11 +90,12 @@ bool CharacterManager::setModel(const String& filename)
 	{
 		mBodyNode = mCamera->getSceneManager()->getRootSceneNode()->
 			createChildSceneNode(Vector3::UNIT_Y * CHAR_HEIGHT);
-		mBodyEnt = mCamera->getSceneManager()->createEntity("Character",
+		mBodyEnt = mCamera->getSceneManager()->createEntity("Player",
 			filename);
 		mBodyEnt->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
 		mBodyNode->attachObject(mBodyEnt);
 		mBodyNode->rotate(Vector3::UNIT_Y, Degree(180));
+		mPlayer = World::getSingletonPtr()->addPlayer(mBodyEnt, mBodyNode);
 		return true;
 	} catch(Exception&)
 	{

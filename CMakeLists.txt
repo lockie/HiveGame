@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(HiveGame)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR};${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 if (CMAKE_BUILD_TYPE STREQUAL "")
 	# Выставить тип сборки по умолчанию
@@ -64,23 +64,38 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
+# Найти Bullet
+#
+find_package(Bullet)
+
+# Собрать OgreBullet
+#
+add_subdirectory("OgreBullet")
+
+
 include_directories(${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
+	${BULLET_INCLUDE_DIR}
 	"include"
+	"OgreBullet/Collisions/include"
+	"OgreBullet/Dynamics/include"
 )
-
 
 set(HDRS
 	include/BeeEngine.hpp
 	include/HiveGame.hpp
 	include/CharacterManager.hpp
+	include/World.hpp
+	include/GameObject.hpp
 )
 
 set(SRCS
 	src/BeeEngine.cpp
 	src/HiveGame.cpp
 	src/CharacterManager.cpp
+	src/World.cpp
+	src/GameObject.cpp
 )
 
 if(WIN32)
@@ -89,11 +104,12 @@ endif(WIN32)
 if(UNIX)
 	add_executable(HiveGame ${SRCS} ${HDRS})
 endif(UNIX)
-if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release
+if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release и экспортом символов из exe-шников, блеать
 	set_target_properties(HiveGame PROPERTIES PREFIX "../")
+	set_target_properties(HiveGame PROPERTIES LINK_FLAGS  "/implib:HiveGame.lib")
 endif()
 
-target_link_libraries(HiveGame ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES})
+target_link_libraries(HiveGame ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn)
 
 install(
 	TARGETS HiveGame

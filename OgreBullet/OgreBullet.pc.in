@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: OgreBullet
+Description: Ogre's wrapper for Bullet library
+Version: @VERSION@
+Libs: -L${libdir} -lOgreBulletCol -lOgreBulletDyn
+Cflags: -I${includedir}/OgreBullet/Collisions -I${includedir}/OgreBullet/Dynamics

@@ -26,6 +26,8 @@
 #include <OISKeyboard.h>
 #include <OISMouse.h>
 
+#include "GameObject.hpp"
+
 
 class CharacterManager
 {
@@ -61,6 +63,7 @@ private:
 	Ogre::Camera* mCamera;
 	Ogre::SceneNode* mBodyNode;
 	Ogre::Entity* mBodyEnt;
+	Ogre::SharedPtr<GameObject> mPlayer;
 	Ogre::SceneNode* mCameraPivot;
 	Ogre::SceneNode* mCameraGoal;
 	Ogre::SceneNode* mCameraNode;

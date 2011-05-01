@@ -40,6 +40,7 @@
 #endif
 
 #include "CharacterManager.hpp"
+#include "World.hpp"
 
 
 class BeeEngine : public Ogre::FrameListener, public Ogre::WindowEventListener,
@@ -99,6 +100,9 @@ protected:
 	OIS::InputManager* mInputManager;
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
+
+	// Копрокубы для проверки физики
+	std::vector< Ogre::SharedPtr<GameObject> > boxes;
 };
 
 #endif // #ifndef __BeeEngine_h__

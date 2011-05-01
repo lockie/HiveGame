@@ -41,26 +41,17 @@ void HiveGame::createScene()
 	mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
 
 	// Модель
-	Entity* entNinja = mSceneMgr->createEntity("Ninja", "ninja.mesh");
-	entNinja->setCastShadows(true);
-	SceneNode* nodeNinja =
-		mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	nodeNinja->attachObject(entNinja);
-	nodeNinja->setScale(0.06f, 0.06f, 0.06f);
-	nodeNinja->setPosition( -20 * Vector3::UNIT_Z +
-		5 * Vector3::UNIT_X);
-	nodeNinja->rotate(Vector3::UNIT_Y, Degree(180));
+	ninja = World::getSingletonPtr()->addMesh("Ninja", "ninja.mesh");
+	ninja->setScale(Vector3(0.06f, 0.06f, 0.06f));
+	ninja->setPosition(-20 * Vector3::UNIT_Z + 5 * Vector3::UNIT_X);
+	Quaternion ninjaOrientation;
+	ninjaOrientation.FromAngleAxis(Degree(180), Vector3::UNIT_Y);
+	ninja->setOrientation(ninjaOrientation);
 
 	// Пол
-	MeshManager::getSingleton().createPlane( "floor",
-		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-		Plane(Vector3::UNIT_Y, 0), 100, 100, 10, 10, true, 1, 10, 10,
-		Vector3::UNIT_Z );
-	Entity* entGround = mSceneMgr->createEntity("FloorEntity", "floor");
-	entGround->setMaterialName("Ground/Rockwall");
-	entGround->setCastShadows(false);
-	mSceneMgr->getRootSceneNode()->createChildSceneNode()->
-		attachObject(entGround);
+	ground = World::getSingletonPtr()->addPlane("floor", Plane(Vector3::UNIT_Y, 0), 
+		100, 100, 10, 10, 10, 10);
+	ground->setMaterial("Ground/Rockwall");
 
 	// Небо
 	mSceneMgr->setSkyBox(true, "SkyBox/EarlyMorningSkyBox");

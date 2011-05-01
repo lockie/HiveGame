@@ -54,6 +54,10 @@ BeeEngine::~BeeEngine()
 	if(mCharacterMan)
 		delete mCharacterMan;
 
+	boxes.clear();
+
+	delete World::getSingletonPtr();
+
 	// Удаляемся из Window listener
 	WindowEventUtilities::removeWindowEventListener(mWindow, this);
 	windowClosed(mWindow);
@@ -139,12 +143,18 @@ void BeeEngine::createFrameListener()
 	items.push_back("");
 	items.push_back("Filtering");
 	items.push_back("Poly Mode");
+	items.push_back("");
+	items.push_back("Press B");
 
 	mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE,
-		"DetailsPanel", 200, items);
+		"DetailsPanel", 220, items);
 	mDetailsPanel->setParamValue(9, "Bilinear");
 	mDetailsPanel->setParamValue(10, "Solid");
 //	mDetailsPanel->hide();
+
+	Vector3 gravity(.0f, -9.81f, .0f);
+	AxisAlignedBox bounds(Vector3(-10000, -10000, -10000),  Vector3 (10000,  10000,  10000));
+	mRoot->addFrameListener(new World(mSceneMgr, gravity, bounds));
 
 	mRoot->addFrameListener(this);
 }
@@ -272,9 +282,9 @@ bool BeeEngine::setup()
 	createResourceListener();
 
 	loadResources();
+	createFrameListener();
 	createScene();
 	setupCharacter();
-	createFrameListener();
 
 	return true;
 };
@@ -331,6 +341,7 @@ bool BeeEngine::frameRenderingQueued(const FrameEvent& evt)
 				StringConverter::toString(mCamera->getDerivedOrientation().y));
 			mDetailsPanel->setParamValue(7,
 				StringConverter::toString(mCamera->getDerivedOrientation().z));
+			mDetailsPanel->setParamValue(12, "get COPROCUBE!");
 		}
 	}
 
@@ -424,10 +435,25 @@ bool BeeEngine::keyPressed(const OIS::KeyEvent& arg )
 	{
 		mWindow->writeContentsToTimestampedFile("screenshot", ".jpg");
 	}
+	else if(arg.key == OIS::KC_B)  // по B - копрокубик для проверки физики
+	{
+		static int cntr = 0;
+		cntr++;
+		Vector3 position = mCamera->getDerivedPosition() +
+			mCamera->getDerivedDirection().normalisedCopy() * 10;
+		SharedPtr<GameObject> box = World::getSingleton().addBox(
+			"test" + StringConverter::toString(cntr), 0.04f);
+		box->setMaterial("Cube");
+		box->setPosition(position);
+		box->setRestitution(0.9f);
+		box->setFriction(0.1f);
+		boxes.push_back(box);
+	}
 	else if(arg.key == OIS::KC_ESCAPE)
 	{
 		mShutDown = true;
 	}
+
 
 	mCharacterMan->injectKeyDown(arg);
 	return true;
