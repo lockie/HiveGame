@@ -15,6 +15,8 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <OgreErrorDialog.h>
+
 #include "HiveGame.hpp"
 
 using namespace std;
@@ -79,32 +81,21 @@ void HiveGame::createScene()
 
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
- static const int wbuffer_size = 4096;
- static wchar_t wbuffer[wbuffer_size];
-
  INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
 #else
  int main(int argc, char *argv[])
 #endif
+{
+	HiveGame app;
+	try
 	{
-		HiveGame app;
-		try
-		{
-			app.run();
-		} catch(Exception& e)
-		{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-			if(MultiByteToWideChar(CP_UTF8, 0, e.getFullDescription().c_str(),
-			 -1, wbuffer, wbuffer_size) != 0)
-				MessageBoxW(NULL, wbuffer,
-					L"ERROR", MB_OK | MB_ICONERROR | MB_TASKMODAL);
-			else
-				MessageBoxW(NULL, L"An error occured.\nSee BeeEngine.log",
-					L"ERROR", MB_OK | MB_ICONERROR | MB_TASKMODAL);
-#else
-			cerr << e.getFullDescription().c_str() << endl;
-#endif
-		}
-		return 0;
+		app.run();
+	} catch(Exception& e)
+	{
+		ErrorDialog dialog;
+		dialog.display(e.getFullDescription());
+		return 1;
+	}
+	return 0;
 }
 
