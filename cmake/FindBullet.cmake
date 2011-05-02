@@ -63,6 +63,7 @@ find_path(BULLET_INCLUDE_DIR NAMES btBulletCollisionCommon.h
 )
 find_path(BULLET_CONVEX_DECOMPOSITION_INCLUDE_DIR NAMES ConvexBuilder.h
   HINTS
+    ${BULLET_INCLUDE_DIR}
     ${BULLET_ROOT}/include
     ${BULLET_ROOT}/src
 	${BULLET_ROOT}/Extras
