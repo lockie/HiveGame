@@ -516,3 +516,19 @@ void BeeEngine::windowClosed(RenderWindow* rw)
 	}
 }
 
+String ToLocalCodepage(const String str)
+{
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+	// Ш1ИДОШ5 CANNOT INTO UNICODE
+	String res(str.length(), 0x32);
+	wchar_t* buff = new wchar_t[str.length()];
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buff, str.length());
+	WideCharToMultiByte(1251, 0, buff, str.length(), 
+		const_cast<char*>(res.c_str()), str.length(), NULL, NULL);
+	delete[] buff;
+	return res;
+#else
+	return String(str);
+#endif  // OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+}
+

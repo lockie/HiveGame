@@ -93,7 +93,7 @@ void HiveGame::createScene()
 	} catch(Exception& e)
 	{
 		ErrorDialog dialog;
-		dialog.display(e.getFullDescription());
+		dialog.display(ToLocalCodepage(e.getFullDescription()));
 		return 1;
 	}
 	return 0;

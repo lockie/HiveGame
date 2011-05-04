@@ -105,5 +105,9 @@ protected:
 	std::vector< Ogre::SharedPtr<GameObject> > boxes;
 };
 
+// Вспомогательные функции
+//
+extern Ogre::String ToLocalCodepage(const Ogre::String);
+
 #endif // #ifndef __BeeEngine_h__
 
