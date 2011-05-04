@@ -51,6 +51,7 @@ public:
 	virtual ~BeeEngine();
 
 	virtual void run();
+	virtual int exec();
 
 protected:
 	virtual bool setup();
@@ -104,10 +105,6 @@ protected:
 	// Копрокубы для проверки физики
 	std::vector< Ogre::SharedPtr<GameObject> > boxes;
 };
-
-// Вспомогательные функции
-//
-extern Ogre::String ToLocalCodepage(const Ogre::String);
 
 #endif // #ifndef __BeeEngine_h__
 

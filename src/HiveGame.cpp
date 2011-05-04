@@ -15,8 +15,6 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <OgreErrorDialog.h>
-
 #include "HiveGame.hpp"
 
 using namespace std;
@@ -87,15 +85,6 @@ void HiveGame::createScene()
 #endif
 {
 	HiveGame app;
-	try
-	{
-		app.run();
-	} catch(Exception& e)
-	{
-		ErrorDialog dialog;
-		dialog.display(ToLocalCodepage(e.getFullDescription()));
-		return 1;
-	}
-	return 0;
+	return app.exec();
 }
 
