@@ -80,6 +80,7 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	"include"
 	"OgreBullet/Collisions/include"
 	"OgreBullet/Dynamics/include"
+	"rapidxml"
 )
 
 set(HDRS
@@ -88,6 +89,7 @@ set(HDRS
 	include/CharacterManager.hpp
 	include/World.hpp
 	include/GameObject.hpp
+	include/DotSceneLoader.hpp
 )
 
 set(SRCS
@@ -96,6 +98,7 @@ set(SRCS
 	src/CharacterManager.cpp
 	src/World.cpp
 	src/GameObject.cpp
+	src/DotSceneLoader.cpp
 )
 
 if(WIN32)

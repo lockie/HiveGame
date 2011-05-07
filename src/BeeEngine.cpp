@@ -221,7 +221,7 @@ void BeeEngine::setupResources()
 Скачайте архив data.zip с https://github.com/fake-human/HiveGame и распакуйте \
 его в директорию \"data\" в директории с игрой.\n", "BeeEngine");
 
-	static const char* std_dirs[] = { "models", "materials", "shaders" };
+	static const char* std_dirs[] = { "maps", "models", "materials", "shaders" };
 	const char** std_dirs_end = std_dirs + sizeof(std_dirs) / sizeof(char*);
 	for(pathlist::const_iterator it(files.begin()); it != files.end(); ++it)
 		try

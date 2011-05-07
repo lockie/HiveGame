@@ -23,7 +23,9 @@
 #include <Shapes/OgreBulletCollisionsConvexHullShape.h>
 #include <Utils/OgreBulletCollisionsMeshToShapeConverter.h>
 
+#include "DotSceneLoader.hpp"
 #include "World.hpp"
+
 
 using namespace Ogre;
 using namespace OgreBulletDynamics;
@@ -53,6 +55,20 @@ World::World(SceneManager* sceneMgr, Vector3& gravityVector,
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
 
 	ms_Singleton = this;
+}
+
+World::~World()
+{
+	delete mWorld->getDebugDrawer();
+	mWorld->setDebugDrawer(NULL);
+	delete mWorld;
+}
+
+bool World::Load(const String& filename)
+{
+	DotSceneLoader loader;
+	loader.parseDotScene(filename, "General", mSceneMgr);
+	return true;
 }
 
 SharedPtr<GameObject> World::addPlane(const Ogre::String& name, const Plane& p,
@@ -144,13 +160,6 @@ Ogre::SharedPtr<GameObject> World::addPlayer(Ogre::Entity* entity, Ogre::SceneNo
 	body->disableDeactivation();
 
 	return SharedPtr<GameObject>(new GameObject("Player", mSceneMgr, entity, node, shape, body));
-}
-
-World::~World()
-{
-	delete mWorld->getDebugDrawer();
-	mWorld->setDebugDrawer(NULL);
-	delete mWorld;
 }
 
 bool World::frameStarted(const FrameEvent& evt)

@@ -41,31 +41,10 @@ void HiveGame::createScene()
 	mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
 
 	// Модель
-	ninja = World::getSingletonPtr()->addMesh("Ninja", "ninja.mesh");
-	ninja->setScale(Vector3(0.06f, 0.06f, 0.06f));
-	ninja->setPosition(-20 * Vector3::UNIT_Z + 5 * Vector3::UNIT_X);
-	Quaternion ninjaOrientation;
-	ninjaOrientation.FromAngleAxis(Degree(180), Vector3::UNIT_Y);
-	ninja->setOrientation(ninjaOrientation);
-
-	// Пол
-	ground = World::getSingletonPtr()->addPlane("floor", Plane(Vector3::UNIT_Y, 0), 
-		100, 100, 10, 10, 10, 10);
-	ground->setMaterial("Ground/Rockwall");
+	World::getSingletonPtr()->Load("test.scene");
 
 	// Небо
 	mSceneMgr->setSkyBox(true, "SkyBox/EarlyMorningSkyBox");
-	
-	// Океан
-	Plane oceanSurface(Vector3::UNIT_Y, 0);
-	MeshManager::getSingleton().createPlane( "OceanSurface",
-		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-		oceanSurface, 10000, 10000, 50, 50, true, 1, 1, 1,
-		Vector3::UNIT_Z );
-	Entity* oceanEnt = mSceneMgr->createEntity("OceanSurface", "OceanSurface");
-	mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0, -5, 0))->
-		attachObject(oceanEnt);
-	oceanEnt->setMaterialName("Ocean2_HLSL_GLSL");
 
 	// Пострендер-эффект
 	//CompositorManager::getSingleton().addCompositor(mViewport, "HDR");

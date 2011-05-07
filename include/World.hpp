@@ -31,6 +31,8 @@ public:
 		Ogre::AxisAlignedBox& bounds);
 	~World();
 
+	bool Load(const Ogre::String& filename);
+
 	Ogre::SharedPtr<GameObject> addPlane(const Ogre::String& name,
 		const Ogre::Plane& reference,
 		Ogre::Real width, Ogre::Real height,
