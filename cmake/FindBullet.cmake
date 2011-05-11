@@ -33,13 +33,11 @@ macro(_FIND_BULLET_LIBRARY _var)
         ${ARGN}
      HINTS
         ${BULLET_ROOT}
-        ${BULLET_ROOT}/msvc/2005/lib/Debug
-        ${BULLET_ROOT}/msvc/2005/lib/Release
-        ${BULLET_ROOT}/msvc/2008/lib/Debug
-        ${BULLET_ROOT}/msvc/2008/lib/Release
+# FIXME : на этапе конфигурации нельзя узнать тип сборки, поэтому по дефолту используется тип RelWithDebInfo
+        ${BULLET_ROOT}/msvc/2005/lib/RelWithDebInfo
         ${BULLET_ROOT}/msvc/2008/lib/RelWithDebInfo
         ${BULLET_ROOT}/out/release8/libs
-        ${BULLET_ROOT}/out/debug8/libs
+#        ${BULLET_ROOT}/out/debug8/libs
      PATH_SUFFIXES lib
   )
   mark_as_advanced(${_var})
