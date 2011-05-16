@@ -20,6 +20,8 @@
 
 #include <Ogre.h>
 #include <OgreSharedPtr.h>
+#include <Terrain/OgreTerrain.h>
+#include <Terrain/OgreTerrainGroup.h>
 
 #include "GameObject.hpp"
 
@@ -51,6 +53,8 @@ public:
 private:
 	Ogre::SceneManager* mSceneMgr;
 	Ogre::Viewport* mViewPort;
+	Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
+	Ogre::TerrainGroup* mTerrainGroup;
 	Ogre::String mResourcesDir;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;

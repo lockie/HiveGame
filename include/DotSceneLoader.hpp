@@ -63,12 +63,14 @@
 	class DotSceneLoader
 	{
 	public:
-		Ogre::TerrainGlobalOptions *mTerrainGlobalOptions;
-
 		DotSceneLoader();
 		virtual ~DotSceneLoader();
 
-		void parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, const Ogre::String& resourcesDir, Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport, Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
+		void parseDotScene(const Ogre::String &SceneName,
+			const Ogre::String &groupName, const Ogre::String& resourcesDir,
+			Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
+			Ogre::TerrainGlobalOptions* terrainOptions,
+			Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
 		Ogre::String getProperty(const Ogre::String &ndNm, const Ogre::String &prop);
 
 		Ogre::TerrainGroup* getTerrainGroup() { return mTerrainGroup; }
@@ -130,6 +132,7 @@
 		Ogre::String mResourcesDir;
 		Ogre::String m_sPrependNode;
 		Ogre::TerrainGroup* mTerrainGroup;
+		Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 		Ogre::Vector3 mTerrainPosition;
 		Ogre::Vector3 mLightDirection;
 

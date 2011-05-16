@@ -40,7 +40,8 @@ template<> World* Ogre::Singleton<World>::ms_Singleton = NULL;
 
 World::World(SceneManager* sceneMgr, Viewport* viewPort, const String& resourcesDir, 
 	Vector3& gravityVector, AxisAlignedBox& bounds) :
-mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir)
+mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir),
+mTerrainGlobalOptions(NULL), mTerrainGroup(NULL)
 {
 	// ¬ключить Bullet
 	mWorld = new DynamicsWorld(mSceneMgr, bounds, gravityVector);
@@ -59,6 +60,9 @@ mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir)
 
 World::~World()
 {
+	OGRE_DELETE mTerrainGroup;
+	OGRE_DELETE mTerrainGlobalOptions;
+
 	delete mWorld->getDebugDrawer();
 	mWorld->setDebugDrawer(NULL);
 	delete mWorld;
@@ -66,8 +70,14 @@ World::~World()
 
 bool World::Load(const String& filename)
 {
+	OGRE_DELETE mTerrainGroup;
+	OGRE_DELETE mTerrainGlobalOptions;
+
+	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions;
 	DotSceneLoader loader;
-	loader.parseDotScene(filename, "General", mResourcesDir, mSceneMgr, mViewPort);
+	loader.parseDotScene(filename, "General", mResourcesDir,
+		mSceneMgr, mViewPort, mTerrainGlobalOptions);
+	mTerrainGroup = loader.getTerrainGroup();
 	return true;
 }
 

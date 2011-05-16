@@ -46,7 +46,6 @@ Ogre::Real OgitorTerrainGroupHeightFunction(Ogre::Real x, Ogre::Real z, void *us
 
 DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0) 
 {
-	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions();
 }
 
 
@@ -63,12 +62,12 @@ DotSceneLoader::~DotSceneLoader()
 	}
 	mPGHandles.clear();*/
 
-	if(mTerrainGroup)
+	/*if(mTerrainGroup)
 	{
 		OGRE_DELETE mTerrainGroup;
 	}
 
-	OGRE_DELETE mTerrainGlobalOptions;
+	OGRE_DELETE mTerrainGlobalOptions;*/
 }
 
 void ParseStringVector(Ogre::String &str, Ogre::StringVector &list)
@@ -90,13 +89,18 @@ void ParseStringVector(Ogre::String &str, Ogre::StringVector &list)
 		list.push_back(str);
 }
 
-void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, const Ogre::String& resourcesDir, Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport, Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
+void DotSceneLoader::parseDotScene(const Ogre::String &SceneName,
+	const Ogre::String &groupName, const Ogre::String& resourcesDir,
+	Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
+	Ogre::TerrainGlobalOptions* terrainOptions,
+	Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
 {
 	// set up shared object values
 	m_sGroupName = groupName;
 	mSceneMgr = yourSceneMgr;
 	mViewPort = viewport;
 	mResourcesDir = resourcesDir;
+	mTerrainGlobalOptions = terrainOptions;
 	m_sPrependNode = sPrependNode;
 	staticObjects.clear();
 	dynamicObjects.clear();
