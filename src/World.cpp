@@ -38,9 +38,9 @@ static const float default_mass        = 1.0f;
 
 template<> World* Ogre::Singleton<World>::ms_Singleton = NULL;
 
-World::World(SceneManager* sceneMgr, Vector3& gravityVector,
-	AxisAlignedBox& bounds) :
- mSceneMgr(sceneMgr)
+World::World(SceneManager* sceneMgr, Viewport* viewPort, const String& resourcesDir, 
+	Vector3& gravityVector, AxisAlignedBox& bounds) :
+mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir)
 {
 	// ¬ключить Bullet
 	mWorld = new DynamicsWorld(mSceneMgr, bounds, gravityVector);
@@ -67,7 +67,7 @@ World::~World()
 bool World::Load(const String& filename)
 {
 	DotSceneLoader loader;
-	loader.parseDotScene(filename, "General", mSceneMgr);
+	loader.parseDotScene(filename, "General", mResourcesDir, mSceneMgr, mViewPort);
 	return true;
 }
 

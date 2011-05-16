@@ -172,7 +172,7 @@ void BeeEngine::createFrameListener()
 
 	Vector3 gravity(.0f, -9.81f, .0f);
 	AxisAlignedBox bounds(Vector3(-10000, -10000, -10000),  Vector3 (10000,  10000,  10000));
-	mRoot->addFrameListener(new World(mSceneMgr, gravity, bounds));
+	mRoot->addFrameListener(new World(mSceneMgr, mViewport, mResourcesDir, gravity, bounds));
 
 	mRoot->addFrameListener(this);
 }
@@ -185,7 +185,6 @@ void BeeEngine::createViewports()
 {
 	// Создать один вьюпорт на всё окно
 	mViewport = mWindow->addViewport(mCamera);
-	mViewport->setBackgroundColour(ColourValue(0, 0, 0));
 
 	// Подогнать соотношение сторон камеры под вьюпорт
 	mCamera->setAspectRatio(
@@ -206,8 +205,9 @@ void BeeEngine::setupResources()
  и распакуйте его в директорию \"data\" в директории с игрой.\n", "BeeEngine");
 
 	// Добавляем в менеджер ресурсов директорию $(PWD)/../data
+	mResourcesDir = res_path.string();
 	ResourceGroupManager::getSingleton().addResourceLocation(
-		res_path.string(),
+		mResourcesDir,
 		"FileSystem",
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		true );

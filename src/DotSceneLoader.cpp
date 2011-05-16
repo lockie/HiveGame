@@ -90,11 +90,13 @@ void ParseStringVector(Ogre::String &str, Ogre::StringVector &list)
 		list.push_back(str);
 }
 
-void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, Ogre::SceneManager *yourSceneMgr, Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
+void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, const Ogre::String& resourcesDir, Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport, Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
 {
 	// set up shared object values
 	m_sGroupName = groupName;
 	mSceneMgr = yourSceneMgr;
+	mViewPort = viewport;
+	mResourcesDir = resourcesDir;
 	m_sPrependNode = sPrependNode;
 	staticObjects.clear();
 	dynamicObjects.clear();
@@ -103,9 +105,13 @@ void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::St
 
 	rapidxml::xml_node<>* XMLRoot;
 
+    // if the resource group doesn't exists create it
+    if(!Ogre::ResourceGroupManager::getSingleton().resourceGroupExists(m_sGroupName))
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_sGroupName);
+
 	Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(SceneName, groupName );
-	char* scene = strdup(stream->getAsString().c_str());
-	XMLDoc.parse<0>(scene);
+	Ogre::String scene = stream->getAsString();
+	XMLDoc.parse<0>(const_cast<char*>(scene.c_str()));
 
 	// Grab the scene node
 	XMLRoot = XMLDoc.first_node("scene");
@@ -114,7 +120,6 @@ void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::St
 	if( getAttrib(XMLRoot, "formatVersion", "") == "")
 	{
 		Ogre::LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid .scene File. Missing <scene>" );
-		delete scene;
 		return;
 	}
 
@@ -125,8 +130,6 @@ void DotSceneLoader::parseDotScene(const Ogre::String &SceneName, const Ogre::St
 
 	// Process the scene
 	processScene(XMLRoot);
-
-	delete scene;
 }
 
 void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
@@ -147,6 +150,11 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 	Ogre::LogManager::getSingleton().logMessage(message);
 
 	rapidxml::xml_node<>* pElement;
+
+	// Process resources (?)
+	pElement = XMLRoot->first_node("resourceLocations");
+	if(pElement)
+		processResourceLocations(pElement);
 
 	// Process environment (?)
 	pElement = XMLRoot->first_node("environment");
@@ -237,6 +245,32 @@ void DotSceneLoader::processExternals(rapidxml::xml_node<>* XMLNode)
 	//! @todo Implement this
 }
 
+void DotSceneLoader::processResourceLocations(rapidxml::xml_node<>* XMLNode)
+{
+	rapidxml::xml_node<>* pElement;
+
+	// Process resources (?)
+	pElement = XMLNode->first_node("resourceLocation");
+	if(pElement)
+	{
+		// remove the particle templates what are in this resource group 
+		// (error happens if an already loaded particle is loaded again)
+		Ogre::ParticleSystemManager::getSingletonPtr()->removeTemplatesByResourceGroup(m_sGroupName);
+		// and empty the resource group. The previously declared resource locations are not deleted!
+		Ogre::ResourceGroupManager::getSingleton().clearResourceGroup(m_sGroupName);
+
+		// add the resource locations what were in the .scene file
+		while(pElement)
+		{
+			Ogre::ResourceGroupManager::getSingleton().addResourceLocation( mResourcesDir + getAttrib(pElement, "name"),
+                                                                        getAttrib(pElement, "type"),
+                                                                        m_sGroupName );
+			pElement = pElement->next_sibling("resourceLocation");
+		}
+		Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(m_sGroupName);
+	}
+}
+
 void DotSceneLoader::processEnvironment(rapidxml::xml_node<>* XMLNode)
 {
 	rapidxml::xml_node<>* pElement;
@@ -277,10 +311,9 @@ void DotSceneLoader::processEnvironment(rapidxml::xml_node<>* XMLNode)
 		mSceneMgr->setAmbientLight(parseColour(pElement));
 
 	// Process colourBackground (?)
-	//! @todo Set the background colour of all viewports (RenderWindow has to be provided then)
 	pElement = XMLNode->first_node("colourBackground");
 	if(pElement)
-		;//mSceneMgr->set(parseColour(pElement));
+		mViewPort->setBackgroundColour(parseColour(pElement));
 
 	// Process userDataReference (?)
 	pElement = XMLNode->first_node("userDataReference");
@@ -318,7 +351,7 @@ void DotSceneLoader::processTerrain(rapidxml::xml_node<>* XMLNode)
 	mTerrainGroup = OGRE_NEW Ogre::TerrainGroup(mSceneMgr, Ogre::Terrain::ALIGN_X_Z, mapSize, worldSize);
 	mTerrainGroup->setOrigin(Ogre::Vector3::ZERO);
 
-	mTerrainGroup->setResourceGroup("General");
+	mTerrainGroup->setResourceGroup(m_sGroupName);
 
 	rapidxml::xml_node<>* pElement;
 	rapidxml::xml_node<>* pPageElement;
@@ -345,8 +378,8 @@ void DotSceneLoader::processTerrainPage(rapidxml::xml_node<>* XMLNode)
 	Ogre::String name = getAttrib(XMLNode, "name");
 	int pageX = Ogre::StringConverter::parseInt(XMLNode->first_attribute("pageX")->value());
 	int pageY = Ogre::StringConverter::parseInt(XMLNode->first_attribute("pageY")->value());
-	mPGPageSize	   = Ogre::StringConverter::parseInt(XMLNode->first_attribute("pagedGeometryPageSize")->value());
-	mPGDetailDistance = Ogre::StringConverter::parseInt(XMLNode->first_attribute("pagedGeometryDetailDistance")->value());
+	mPGPageSize = Ogre::StringConverter::parseInt(getAttrib(XMLNode, "pagedGeometryPageSize", "10"));
+	mPGDetailDistance = Ogre::StringConverter::parseInt(getAttrib(XMLNode, "pagedGeometryDetailDistance", "100"));
 	// error checking
 	if(mPGPageSize < 10){
 		Ogre::LogManager::getSingleton().logMessage("[DotSceneLoader] pagedGeometryPageSize value error!", Ogre::LML_CRITICAL);
@@ -571,16 +604,16 @@ void DotSceneLoader::processCamera(rapidxml::xml_node<>* XMLNode, Ogre::SceneNod
 
 	// Create the camera
 	Ogre::Camera *pCamera = mSceneMgr->createCamera(name);
-	
-	//TODO: make a flag or attribute indicating whether or not the camera should be attached to any parent node.
-	//if(pParent)
-	//	pParent->attachObject(pCamera);
+
+	if(pParent)
+		pParent->attachObject(pCamera);
 
 	// Set the field-of-view
 	//! @todo Is this always in degrees?
 	//pCamera->setFOVy(Ogre::Degree(fov));
 
 	// Set the aspect ratio
+	pCamera->setAutoAspectRatio(true);
 	//pCamera->setAspectRatio(aspectRatio);
 	
 	// Set the projection type
@@ -724,12 +757,12 @@ void DotSceneLoader::processNode(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode 
 	}
 
 	// Process light (*)
-	//pElement = XMLNode->first_node("light");
-	//while(pElement)
-	//{
-	//	processLight(pElement, pNode);
-	//	pElement = pElement->next_sibling("light");
-	//}
+	pElement = XMLNode->first_node("light");
+	while(pElement)
+	{
+		processLight(pElement, pNode);
+		pElement = pElement->next_sibling("light");
+	}
 
 	// Process camera (*)
 	pElement = XMLNode->first_node("camera");
@@ -964,6 +997,10 @@ void DotSceneLoader::processParticleSystem(rapidxml::xml_node<>* XMLNode, Ogre::
 	{
 		Ogre::ParticleSystem *pParticles = mSceneMgr->createParticleSystem(name, file);
 		pParent->attachObject(pParticles);
+		// there is a bug with particles and paged geometry if particle's
+		// renderQueue is value is smaller than the grass's renderQueue
+		//if(mGrassLoaderHandle)
+		//	pParticles->setRenderQueueGroup(mGrassLoaderHandle->getRenderQueueGroup());
 	}
 	catch(Ogre::Exception &/*e*/)
 	{
@@ -994,7 +1031,7 @@ void DotSceneLoader::processPlane(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode
 
 	Ogre::Plane plane(normal, distance);
 	Ogre::MeshPtr res = Ogre::MeshManager::getSingletonPtr()->createPlane(
-						name + "mesh", "General", plane, width, height, xSegments, ySegments, hasNormals,
+						name + "mesh", m_sGroupName, plane, width, height, xSegments, ySegments, hasNormals,
 	numTexCoordSets, uTile, vTile, up);
 	Ogre::Entity* ent = mSceneMgr->createEntity(name, name + "mesh");
 
@@ -1117,7 +1154,7 @@ void DotSceneLoader::processFog(rapidxml::xml_node<>* XMLNode)
 
 	// Process colourDiffuse (?)
 	Ogre::ColourValue colourDiffuse = Ogre::ColourValue::White;
-	pElement = XMLNode->first_node("colour");
+	pElement = XMLNode->first_node("colour"); // BUG : "colourDiffuse" in OgreMax
 	if(pElement)
 		colourDiffuse = parseColour(pElement);
 

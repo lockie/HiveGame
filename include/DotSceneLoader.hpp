@@ -68,7 +68,7 @@
 		DotSceneLoader();
 		virtual ~DotSceneLoader();
 
-		void parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, Ogre::SceneManager *yourSceneMgr, Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
+		void parseDotScene(const Ogre::String &SceneName, const Ogre::String &groupName, const Ogre::String& resourcesDir, Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport, Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
 		Ogre::String getProperty(const Ogre::String &ndNm, const Ogre::String &prop);
 
 		Ogre::TerrainGroup* getTerrainGroup() { return mTerrainGroup; }
@@ -84,6 +84,7 @@
 
 		void processNodes(rapidxml::xml_node<>* XMLNode);
 		void processExternals(rapidxml::xml_node<>* XMLNode);
+		void processResourceLocations(rapidxml::xml_node<>* XMLNode);
 		void processEnvironment(rapidxml::xml_node<>* XMLNode);
 		void processTerrain(rapidxml::xml_node<>* XMLNode);
 		void processTerrainPage(rapidxml::xml_node<>* XMLNode);
@@ -123,8 +124,10 @@
 		Ogre::ColourValue parseColour(rapidxml::xml_node<>* XMLNode);
 
 		Ogre::SceneManager *mSceneMgr;
+		Ogre::Viewport *mViewPort;
 		Ogre::SceneNode *mAttachNode;
 		Ogre::String m_sGroupName;
+		Ogre::String mResourcesDir;
 		Ogre::String m_sPrependNode;
 		Ogre::TerrainGroup* mTerrainGroup;
 		Ogre::Vector3 mTerrainPosition;

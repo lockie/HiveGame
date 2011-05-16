@@ -27,8 +27,9 @@
 class World: public Ogre::FrameListener, public Ogre::Singleton<World>
 {
 public:
-	World(Ogre::SceneManager* sceneMgr, Ogre::Vector3& gravityVector,
-		Ogre::AxisAlignedBox& bounds);
+	World(Ogre::SceneManager* sceneMgr, Ogre::Viewport* viewPort,
+		const Ogre::String& resourcesDir,
+		Ogre::Vector3& gravityVector, Ogre::AxisAlignedBox& bounds);
 	~World();
 
 	bool Load(const Ogre::String& filename);
@@ -49,6 +50,8 @@ public:
 
 private:
 	Ogre::SceneManager* mSceneMgr;
+	Ogre::Viewport* mViewPort;
+	Ogre::String mResourcesDir;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
 

@@ -91,6 +91,8 @@ protected:
 	Ogre::Viewport* mViewport;
 	CharacterManager* mCharacterMan;
 
+	Ogre::String mResourcesDir;
+
 	// OgreBites
 	OgreBites::SdkTrayManager* mTrayMgr;
 	OgreBites::ParamsPanel* mDetailsPanel;
