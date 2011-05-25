@@ -37,7 +37,6 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	if (WIN32 OR APPLE)
 		set(Boost_USE_STATIC_LIBS TRUE)
 	else()
-		# Statically linking boost to a dynamic Ogre build doesn't work on Linux 64bit
 		# Статическая линковка boost к динамическому Ogre не заработает на 64-битном Linux
 		set(Boost_USE_STATIC_LIBS ${OGRE_STATIC})
 	endif()
@@ -72,6 +71,10 @@ find_package(Bullet)
 #
 add_subdirectory("OgreBullet")
 
+# Собрать Paged Geomertry
+#
+add_subdirectory("PagedGeometry")
+
 
 include_directories(${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
@@ -80,6 +83,7 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	"include"
 	"OgreBullet/Collisions/include"
 	"OgreBullet/Dynamics/include"
+	"PagedGeometry/include"
 	"rapidxml"
 )
 
@@ -112,7 +116,7 @@ if(MSVC_IDE) # грязнохак для студии с её тупыми ка�
 	set_target_properties(HiveGame PROPERTIES LINK_FLAGS  "/implib:HiveGame.lib")
 endif()
 
-target_link_libraries(HiveGame ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn)
+target_link_libraries(HiveGame ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry)
 
 install(
 	TARGETS HiveGame
@@ -191,7 +195,7 @@ set(CPACK_PACKAGE_VERSION "${GIT_REVISION}")
 set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}\\\\res\\\\installer.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}\\\\res\\\\uninstaller.ico")
 set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}\\\\res\\\\banner.bmp")
-set(CPACK_NSIS_COMPRESSOR "/FINAL /SOLID bzip2")
+set(CPACK_NSIS_COMPRESSOR "/FINAL /SOLID lzma")
 set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/fake-human/HiveGame")
 set(CPACK_NSIS_CONTACT "fake0mail0@gmail.com")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.txt")

@@ -38,7 +38,6 @@
 		class TerrainGlobalOptions;
 	}
 
-	/*
 	namespace Forests
 	{
 		class PagedGeometry;
@@ -46,7 +45,6 @@
 		class GrassLoader;
 		class GrassLayer;
 	}
-	*/
 
 	class nodeProperty
 	{
@@ -78,9 +76,9 @@
 		std::vector<nodeProperty> nodeProperties;
 		std::vector<Ogre::String> staticObjects;
 		std::vector<Ogre::String> dynamicObjects;
-		//std::vector<Forests::PagedGeometry *> mPGHandles;
-		//std::vector<Forests::TreeLoader3D *> mTreeHandles;
-		//Forests::GrassLoader* mGrassLoaderHandle;  /** Handle to Forests::GrassLoader object */
+		std::vector<Forests::PagedGeometry *> mPGHandles;
+		std::vector<Forests::TreeLoader3D *> mTreeHandles;
+		Forests::GrassLoader* mGrassLoaderHandle;  /** Handle to Forests::GrassLoader object */
 	protected:
 		void processScene(rapidxml::xml_node<>* XMLRoot);
 

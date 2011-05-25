@@ -23,19 +23,18 @@
 #include <Terrain/OgreTerrainGroup.h>
 #include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
-//#include "PagedGeometry.h"
-//#include "GrassLoader.h" 
-//#include "BatchPage.h"
-//#include "ImpostorPage.h"
-//#include "TreeLoader3D.h"
+#include "PagedGeometry.h"
+#include "GrassLoader.h" 
+#include "BatchPage.h"
+#include "ImpostorPage.h"
+#include "TreeLoader3D.h"
 
 #ifdef _MSC_VER
 # pragma warning(disable:4390)
-# pragma warning(disable:4305)
 #endif  // _MSC_VER
 
 
-//using namespace Forests;
+using namespace Forests;
 
 Ogre::TerrainGroup *StaticGroupPtr = 0;
 
@@ -44,7 +43,7 @@ Ogre::Real OgitorTerrainGroupHeightFunction(Ogre::Real x, Ogre::Real z, void *us
 	return StaticGroupPtr->getHeightAtWorldPosition(x,0,z);
 }
 
-DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0) 
+DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0)
 {
 }
 
@@ -156,6 +155,9 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 	rapidxml::xml_node<>* pElement;
 
 	// Process resources (?)
+	// BUG in Ogitor: resource location "Terrain" isn't added during export
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+		mResourcesDir + "/maps/Terrain", "FileSystem", m_sGroupName);
 	pElement = XMLRoot->first_node("resourceLocations");
 	if(pElement)
 		processResourceLocations(pElement);
@@ -266,7 +268,7 @@ void DotSceneLoader::processResourceLocations(rapidxml::xml_node<>* XMLNode)
 		// add the resource locations what were in the .scene file
 		while(pElement)
 		{
-			Ogre::ResourceGroupManager::getSingleton().addResourceLocation( mResourcesDir + getAttrib(pElement, "name"),
+			Ogre::ResourceGroupManager::getSingleton().addResourceLocation( mResourcesDir + "/maps/" + getAttrib(pElement, "name"),
                                                                         getAttrib(pElement, "type"),
                                                                         m_sGroupName );
 			pElement = pElement->next_sibling("resourceLocation");
@@ -335,14 +337,13 @@ void DotSceneLoader::processTerrain(rapidxml::xml_node<>* XMLNode)
 	int maxPixelError = Ogre::StringConverter::parseInt(XMLNode->first_attribute("tuningMaxPixelError")->value());
 
 	// TODO : штоа
-	Ogre::Vector3 lightdir(0, -0.3, 0.75);
+	Ogre::Vector3 lightdir(0, -0.3f, 0.75f);
 	lightdir.normalise();
 	Ogre::Light* l = mSceneMgr->createLight("tstLight");
 	l->setType(Ogre::Light::LT_DIRECTIONAL);
 	l->setDirection(lightdir);
-	l->setDiffuseColour(Ogre::ColourValue(1.0, 1.0, 1.0));
-	l->setSpecularColour(Ogre::ColourValue(0.4, 0.4, 0.4));
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.6, 0.6, 0.6));
+	l->setDiffuseColour(Ogre::ColourValue(1.0f, 1.0f, 1.0f));
+	l->setSpecularColour(Ogre::ColourValue(0.4f, 0.4f, 0.4f));
 
 	mTerrainGlobalOptions->setMaxPixelError((Ogre::Real)maxPixelError);
 	mTerrainGlobalOptions->setCompositeMapDistance((Ogre::Real)compositeMapDistance);
@@ -413,7 +414,6 @@ void DotSceneLoader::processGrassLayers(rapidxml::xml_node<>* XMLNode)
 	Ogre::String dMapName = getAttrib(XMLNode, "densityMap");
 	mTerrainGlobalOptions->setVisibilityFlags(Ogre::StringConverter::parseUnsignedInt(XMLNode->first_attribute("visibilityFlags")->value()));
 
-#if 0
 	// create a temporary camera
 	Ogre::Camera* tempCam = mSceneMgr->createCamera("ThIsNamEShoUlDnOtExisT");
 
@@ -427,12 +427,10 @@ void DotSceneLoader::processGrassLayers(rapidxml::xml_node<>* XMLNode)
 
 	//Assign the "grassLoader" to be used to load geometry for the PagedGrass instance
 	mPGHandle->setPageLoader(mGrassLoaderHandle);
-#endif
 
 	// set the terrain group pointer
 	StaticGroupPtr = mTerrainGroup;
 
-#if 0
 	//Supply a height function to GrassLoader so it can calculate grass Y values
 	mGrassLoaderHandle->setHeightFunction(OgitorTerrainGroupHeightFunction);
 	
@@ -513,7 +511,6 @@ void DotSceneLoader::processGrassLayers(rapidxml::xml_node<>* XMLNode)
 	}
 
 	mSceneMgr->destroyCamera(tempCam);
-#endif  // 0
 }
 
 void DotSceneLoader::processUserDataReference(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent)
@@ -603,7 +600,7 @@ void DotSceneLoader::processCamera(rapidxml::xml_node<>* XMLNode, Ogre::SceneNod
 	Ogre::String name = getAttrib(XMLNode, "name");
 	Ogre::String id = getAttrib(XMLNode, "id");
 	Ogre::Real fov = getAttribReal(XMLNode, "fov", 45);
-	Ogre::Real aspectRatio = getAttribReal(XMLNode, "aspectRatio", 1.3333);
+	Ogre::Real aspectRatio = getAttribReal(XMLNode, "aspectRatio", 1.3333f);
 	Ogre::String projectionType = getAttrib(XMLNode, "projectionType", "perspective");
 
 	// Create the camera
@@ -1003,8 +1000,8 @@ void DotSceneLoader::processParticleSystem(rapidxml::xml_node<>* XMLNode, Ogre::
 		pParent->attachObject(pParticles);
 		// there is a bug with particles and paged geometry if particle's
 		// renderQueue is value is smaller than the grass's renderQueue
-		//if(mGrassLoaderHandle)
-		//	pParticles->setRenderQueueGroup(mGrassLoaderHandle->getRenderQueueGroup());
+		if(mGrassLoaderHandle)
+			pParticles->setRenderQueueGroup(mGrassLoaderHandle->getRenderQueueGroup());
 	}
 	catch(Ogre::Exception &/*e*/)
 	{
@@ -1055,8 +1052,7 @@ typedef std::vector<PGInstanceInfo> PGInstanceList;
 
 void DotSceneLoader::processPagedGeometry(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent)
 {
-#if 0
-	Ogre::String filename = "../Projects/SampleScene3/" + getAttrib(XMLNode, "fileName");
+	Ogre::String filename = mResourcesDir + "/maps/" + getAttrib(XMLNode, "fileName");
 	Ogre::String model = getAttrib(XMLNode, "model");
 	Ogre::Real pagesize = getAttribReal(XMLNode, "pageSize");
 	Ogre::Real batchdistance = getAttribReal(XMLNode, "batchDistance");
@@ -1131,13 +1127,12 @@ void DotSceneLoader::processPagedGeometry(rapidxml::xml_node<>* XMLNode, Ogre::S
 			it++;
 		}
 	}
-#endif  // 0
 }
 
 void DotSceneLoader::processFog(rapidxml::xml_node<>* XMLNode)
 {
 	// Process attributes
-	Ogre::Real expDensity = getAttribReal(XMLNode, "density", 0.001);
+	Ogre::Real expDensity = getAttribReal(XMLNode, "density", 0.001f);
 	Ogre::Real linearStart = getAttribReal(XMLNode, "start", 0.0);
 	Ogre::Real linearEnd = getAttribReal(XMLNode, "end", 1.0);
 

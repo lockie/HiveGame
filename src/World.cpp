@@ -23,13 +23,15 @@
 #include <Shapes/OgreBulletCollisionsConvexHullShape.h>
 #include <Utils/OgreBulletCollisionsMeshToShapeConverter.h>
 
+#include "PagedGeometry.h"
+
 #include "DotSceneLoader.hpp"
 #include "World.hpp"
-
 
 using namespace Ogre;
 using namespace OgreBulletDynamics;
 using namespace OgreBulletCollisions;
+using namespace Forests;
 
 
 static const float default_restitution = 0.1f;
@@ -75,9 +77,18 @@ bool World::Load(const String& filename)
 
 	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions;
 	DotSceneLoader loader;
-	loader.parseDotScene(filename, "General", mResourcesDir,
+	loader.parseDotScene(filename, "Scene", mResourcesDir,
 		mSceneMgr, mViewPort, mTerrainGlobalOptions);
 	mTerrainGroup = loader.getTerrainGroup();
+	mPagedGeometryHandles = loader.mPGHandles;
+	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
+		it != mPagedGeometryHandles.end(); ++it)
+	{
+		// если здесь рушится, см. BeeEngine::createCamera()
+		(*it)->setCamera(mSceneMgr->getCamera("PlayerCamera"));
+		(*it)->update();
+	}
+
 	return true;
 }
 
@@ -181,5 +192,13 @@ bool World::frameStarted(const FrameEvent& evt)
 bool World::frameEnded(const FrameEvent& evt)
 {
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
+	return true;
+}
+
+bool World::frameRenderingQueued(const Ogre::FrameEvent& evt)
+{
+	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
+		it != mPagedGeometryHandles.end(); ++it)
+		(*it)->update();
 	return true;
 }

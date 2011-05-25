@@ -132,7 +132,7 @@ void BeeEngine::setupCharacter()
 
 void BeeEngine::createCamera()
 {
-	mCamera = mSceneMgr->createCamera("PlayerCam");
+	mCamera = mSceneMgr->createCamera("PlayerCamera");
 }
 
 void BeeEngine::createFrameListener()

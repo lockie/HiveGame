@@ -23,6 +23,8 @@
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 
+#include "PagedGeometry.h"
+
 #include "GameObject.hpp"
 
 
@@ -49,13 +51,15 @@ public:
 
  	bool frameStarted(const Ogre::FrameEvent& evt);
  	bool frameEnded(const Ogre::FrameEvent& evt);
+	bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
 private:
 	Ogre::SceneManager* mSceneMgr;
 	Ogre::Viewport* mViewPort;
+	Ogre::String mResourcesDir;
 	Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 	Ogre::TerrainGroup* mTerrainGroup;
-	Ogre::String mResourcesDir;
+	std::vector<Forests::PagedGeometry*> mPagedGeometryHandles;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
 
