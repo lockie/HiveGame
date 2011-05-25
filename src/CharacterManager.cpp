@@ -103,6 +103,16 @@ bool CharacterManager::setModel(const String& filename)
 	}
 }
 
+const Ogre::Vector3& CharacterManager::getPosition() const
+{
+	return mBodyNode->getPosition();
+}
+
+void CharacterManager::setPosition(const Vector3& pos)
+{
+	mBodyNode->setPosition(pos);
+}
+
 void CharacterManager::update(Real deltaTime)
 {
 	updateBody(deltaTime);
@@ -198,7 +208,7 @@ void CharacterManager::updateBody(Real deltaTime)
 			Node::TS_LOCAL );
 
 		// грязнохак для того, чтобы не вылезать за пределы сцены
-		Real scene_size = 45.0;
+		/*Real scene_size = 45.0;
 		Vector3 pos = mBodyNode->getPosition();
 		if(abs(pos.x) > scene_size)
 		{
@@ -209,7 +219,7 @@ void CharacterManager::updateBody(Real deltaTime)
 		{
 			pos.z = scene_size * pos.z / abs(pos.z);
 			mBodyNode->setPosition(pos);
-		}
+		}*/
 	}
 	if(mBaseAnimID == ANIM_JUMP_LOOP)
 	{

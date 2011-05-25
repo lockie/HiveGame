@@ -31,6 +31,7 @@ HiveGame::~HiveGame()
 
 void HiveGame::createScene()
 {
+
 	// Свет и тень
 	mSceneMgr->setAmbientLight(ColourValue(0, 0, 0));
 	Light* directionalLight = mSceneMgr->createLight("sunLight");
@@ -40,11 +41,8 @@ void HiveGame::createScene()
 	directionalLight->setDirection(Vector3(0, -10, -10));
 	mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
 
-	// Модель
-	World::getSingletonPtr()->Load("test.scene");
 
-	// Небо
-	mSceneMgr->setSkyBox(true, "SkyBox/EarlyMorningSkyBox");
+	World::getSingletonPtr()->Load("test.scene");
 
 	// Пострендер-эффект
 	//CompositorManager::getSingleton().addCompositor(mViewport, "HDR");
@@ -54,6 +52,13 @@ void HiveGame::createScene()
 	//CompositorManager::getSingleton().setCompositorEnabled(mViewport,
 	//	"Bloom", true);
 
+}
+
+void HiveGame::setupCharacter()
+{
+	BeeEngine::setupCharacter();
+
+	mCharacterMan->setPosition(Vector3(-100, 195, -155));
 }
 
 

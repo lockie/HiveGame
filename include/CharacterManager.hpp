@@ -51,6 +51,9 @@ public:
 
 	bool setModel(const Ogre::String& filename);
 
+	const Ogre::Vector3& getPosition() const;
+	void setPosition(const Ogre::Vector3& pos);
+
 	void update(Ogre::Real deltaTime);
 
 	void injectKeyDown(const OIS::KeyEvent& evt);

@@ -28,7 +28,8 @@ public:
 	virtual ~HiveGame();
 
 private:
-	virtual void createScene();
+	void createScene();
+	void setupCharacter();
 
 	// объекты сцены
 	Ogre::SharedPtr<GameObject> ninja, ground;
