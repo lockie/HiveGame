@@ -22,6 +22,7 @@
 
 #include <OgreErrorDialog.h>
 
+#include "resource.h"
 #include "BeeEngine.hpp"
 
 using namespace std;
@@ -90,6 +91,15 @@ bool BeeEngine::configure()
 	{
 		// Щёлкнули Ok, создаём окно
 		mWindow = mRoot->initialise(true, "BeeEngine Render Window");
+
+		// Выставляем правильную иконку у окна
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+		HWND hwnd;
+		mWindow->getCustomAttribute("WINDOW", (void*)&hwnd);
+		LONG iconID =
+			(LONG)LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(IDR_MAINFRAME));
+		SetClassLong(hwnd, GCL_HICON, iconID);
+#endif
 		return true;
 	}
 	else
@@ -209,8 +219,7 @@ void BeeEngine::setupResources()
 	ResourceGroupManager::getSingleton().addResourceLocation(
 		mResourcesDir,
 		"FileSystem",
-		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-		true );
+		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	// Смотрим, есть ли в ней что-нибудь
 	pathlist files;
@@ -233,8 +242,7 @@ void BeeEngine::setupResources()
 					.addResourceLocation(
 						(*it).string(),
 						"FileSystem",
-						ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-						true );
+						ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 			// И zip-архивы data/*.zip
 			else if((*it).extension().string() == ".zip")
 				ResourceGroupManager::getSingleton().addResourceLocation(

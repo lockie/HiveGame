@@ -81,6 +81,7 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIR}
 	"include"
+	"res"
 	"OgreBullet/Collisions/include"
 	"OgreBullet/Dynamics/include"
 	"PagedGeometry/include"
