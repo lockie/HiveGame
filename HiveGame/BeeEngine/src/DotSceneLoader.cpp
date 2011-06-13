@@ -29,6 +29,8 @@
 #include "ImpostorPage.h"
 #include "TreeLoader3D.h"
 
+#include "Caelum.h"
+
 #ifdef _MSC_VER
 # pragma warning(disable:4390)
 #endif  // _MSC_VER
@@ -43,7 +45,7 @@ Ogre::Real OgitorTerrainGroupHeightFunction(Ogre::Real x, Ogre::Real z, void *us
 	return StaticGroupPtr->getHeightAtWorldPosition(x,0,z);
 }
 
-DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0)
+DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0), mCaelum(0)
 {
 	Ogre::LogManager::getSingleton().logMessage("[DotSceneLoader] Initializing");
 }
@@ -166,9 +168,12 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 	rapidxml::xml_node<>* pElement;
 
 	// Process resources (?)
-	// BUG in Ogitor: resource location "Terrain" isn't added during export
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
 		mResourcesDir + "/maps/Terrain", "FileSystem", m_sGroupName);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+		mResourcesDir + "/maps/Caelum", "FileSystem", Caelum::RESOURCE_GROUP_NAME);
+	Ogre::ResourceGroupManager::getSingletonPtr()->initialiseResourceGroup(
+		Caelum::RESOURCE_GROUP_NAME);
 	pElement = XMLRoot->first_node("resourceLocations");
 	if(pElement)
 		processResourceLocations(pElement);
@@ -218,6 +223,10 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 	pElement = XMLRoot->first_node("terrain");
 	if(pElement)
 		processTerrain(pElement);
+
+	pElement = XMLRoot->first_node("caelum");
+	if(pElement)
+		processCaelum(pElement);
 }
 
 void DotSceneLoader::processNodes(rapidxml::xml_node<>* XMLNode)
@@ -1338,6 +1347,186 @@ void DotSceneLoader::processLightAttenuation(rapidxml::xml_node<>* XMLNode, Ogre
 	pLight->setAttenuation(range, constant, linear, quadratic);
 }
 
+void DotSceneLoader::processCaelum(rapidxml::xml_node<>* XMLNode)
+{
+	Ogre::LogManager::getSingleton().logMessage( "[DotSceneLoader] Process Caelum" );
+
+	int componentMask = Caelum::CaelumSystem::CAELUM_COMPONENT_SKY_DOME |
+		Caelum::CaelumSystem::CAELUM_COMPONENT_CLOUDS;
+
+	rapidxml::xml_node<>* pSun = XMLNode->first_node("sun");
+	if(pSun && getAttribBool(pSun, "enable"))
+		componentMask |= Caelum::CaelumSystem::CAELUM_COMPONENT_SUN;
+	rapidxml::xml_node<>* pMoon = XMLNode->first_node("moon");
+	if(pMoon && getAttribBool(pMoon, "enable"))
+		componentMask |= Caelum::CaelumSystem::CAELUM_COMPONENT_MOON;
+	rapidxml::xml_node<>* pStars = XMLNode->first_node("stars");
+	if(pStars && getAttribBool(pStars, "enable"))
+		componentMask |= Caelum::CaelumSystem::CAELUM_COMPONENT_POINT_STARFIELD;
+
+	mCaelum = new Caelum::CaelumSystem(Ogre::Root::getSingletonPtr(), mSceneMgr,
+		static_cast<Caelum::CaelumSystem::CaelumComponent>(componentMask));
+
+	rapidxml::xml_attribute<>* attr;
+
+	if((componentMask & Caelum::CaelumSystem::CAELUM_COMPONENT_SUN) == Caelum::CaelumSystem::CAELUM_COMPONENT_SUN)
+	{
+		Caelum::BaseSkyLight *sun = mCaelum->getSun();
+
+		sun->setAutoDisable(getAttribBool(pSun, "autoDisable", sun->getAutoDisable()));
+
+		attr = pSun->first_attribute("ambientMultiplier");
+		if(attr)
+			sun->setAmbientMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), sun->getAmbientMultiplier()));
+		attr = pSun->first_attribute("diffuseMultiplier");
+		if(attr)
+			sun->setDiffuseMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), sun->getDiffuseMultiplier()));
+		attr = pSun->first_attribute("specularMultiplier");
+		if(attr)
+			sun->setSpecularMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), sun->getSpecularMultiplier()));
+
+		sun->getMainLight()->setCastShadows(getAttribBool(pSun, "castShadow", sun->getMainLight()->getCastShadows()));
+
+		attr = pSun->first_attribute("position");
+		if(attr)
+			sun->getSceneNode()->setPosition(Ogre::StringConverter::parseVector3(attr->value(), sun->getSceneNode()->getPosition()));
+
+		attr = pSun->first_attribute("colour");
+		if(attr)
+			sun->setBodyColour(Ogre::StringConverter::parseColourValue(attr->value(), sun->getBodyColour()));
+
+		// TODO : how do I set sunlight colour?
+
+		sun->getMainLight()->setAttenuation(
+			getAttribReal(pSun, "distance", sun->getMainLight()->getAttenuationRange()),
+			getAttribReal(pSun, "constantMultiplier", sun->getMainLight()->getAttenuationConstant()),
+			getAttribReal(pSun, "linearMultiplier", sun->getMainLight()->getAttenuationLinear()),
+			getAttribReal(pSun, "quadricMultiplier", sun->getMainLight()->getAttenuationQuadric())
+		);
+	}
+
+	if((componentMask & Caelum::CaelumSystem::CAELUM_COMPONENT_MOON) == Caelum::CaelumSystem::CAELUM_COMPONENT_MOON)
+	{
+		Caelum::Moon *moon = mCaelum->getMoon();
+
+		moon->setAutoDisable(getAttribBool(pMoon, "autoDisable", moon->getAutoDisable()));
+
+		attr = pMoon->first_attribute("ambientMultiplier");
+		if(attr)
+			moon->setAmbientMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), moon->getAmbientMultiplier()));
+		attr = pMoon->first_attribute("diffuseMultiplier");
+		if(attr)
+			moon->setDiffuseMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), moon->getDiffuseMultiplier()));
+		attr = pMoon->first_attribute("specularMultiplier");
+		if(attr)
+			moon->setSpecularMultiplier(Ogre::StringConverter::parseColourValue(attr->value(), moon->getSpecularMultiplier()));
+
+		moon->getMainLight()->setCastShadows(getAttribBool(pMoon, "castShadow", moon->getMainLight()->getCastShadows()));
+
+		attr = pMoon->first_attribute("position");
+		if(attr)
+			moon->getSceneNode()->setPosition(Ogre::StringConverter::parseVector3(attr->value(), moon->getSceneNode()->getPosition()));
+
+		attr = pMoon->first_attribute("colour");
+		if(attr)
+			moon->setBodyColour(Ogre::StringConverter::parseColourValue(attr->value(), moon->getBodyColour()));
+
+		// TODO : how do I set moonlight colour?
+
+		moon->getMainLight()->setAttenuation(
+			getAttribReal(pMoon, "distance", moon->getMainLight()->getAttenuationRange()),
+			getAttribReal(pMoon, "constantMultiplier", moon->getMainLight()->getAttenuationConstant()),
+			getAttribReal(pMoon, "linearMultiplier", moon->getMainLight()->getAttenuationLinear()),
+			getAttribReal(pMoon, "quadricMultiplier", moon->getMainLight()->getAttenuationQuadric())
+		);
+	}
+
+	rapidxml::xml_node<>* pClock = XMLNode->first_node("clock");
+	if(pClock)
+	{
+		Caelum::UniversalClock *clock = mCaelum->getUniversalClock();
+		int year = 2000, month = 1, day = 1, hour = 12, minute = 0;
+		double second = getAttribReal(pClock, "second");
+		attr = pClock->first_attribute("year");
+		if(attr)
+			year = Ogre::StringConverter::parseInt(attr->value(), 2000);
+		attr = pClock->first_attribute("month");
+		if(attr)
+			month = Ogre::StringConverter::parseInt(attr->value(), 1);
+		attr = pClock->first_attribute("day");
+		if(attr)
+			day = Ogre::StringConverter::parseInt(attr->value(), 1);
+		attr = pClock->first_attribute("hour");
+		if(attr)
+			hour = Ogre::StringConverter::parseInt(attr->value(), 12);
+		attr = pClock->first_attribute("minute");
+		if(attr)
+			minute = Ogre::StringConverter::parseInt(attr->value());
+		clock->setGregorianDateTime(year, month, day, hour, minute, second);
+		clock->setTimeScale(getAttribReal(pClock, "speed", mCaelum->getUniversalClock()->getTimeScale()));
+	}
+
+	rapidxml::xml_node<>* pObserver = XMLNode->first_node("observer");
+	if(pObserver)
+	{
+		mCaelum->setObserverLongitude(Ogre::Degree(getAttribReal(pObserver, "longitude", mCaelum->getObserverLongitude().valueDegrees())));
+		mCaelum->setObserverLatitude (Ogre::Degree(getAttribReal(pObserver, "latitude",  mCaelum->getObserverLatitude().valueDegrees())));
+	}
+
+	rapidxml::xml_node<>* pLighting = XMLNode->first_node("lighting");
+	if(pLighting)
+	{
+		mCaelum->setEnsureSingleLightSource(getAttribBool(pLighting, "singleLightsource", mCaelum->getEnsureSingleLightSource()));
+		mCaelum->setEnsureSingleShadowSource(getAttribBool(pLighting, "singleShadowsource", mCaelum->getEnsureSingleShadowSource()));
+		mCaelum->setManageAmbientLight(getAttribBool(pLighting, "manageAmbientLight", mCaelum->getManageAmbientLight()));
+
+		attr = pLighting->first_attribute("minimumAmbientLight");
+		if(attr)
+			mCaelum->setMinimumAmbientLight(Ogre::StringConverter::parseColourValue(attr->value(), mCaelum->getMinimumAmbientLight()));
+	}
+
+	rapidxml::xml_node<>* pFog = XMLNode->first_node("fog");
+	if(pFog)
+	{
+		mCaelum->setManageSceneFog(getAttribBool(pFog, "manage", mCaelum->getManageSceneFog() != Ogre::FOG_NONE) ? Ogre::FOG_EXP2 : Ogre::FOG_NONE);
+		mCaelum->setGlobalFogDensityMultiplier(getAttribReal(pFog, "densityMultiplier", mCaelum->getGlobalFogDensityMultiplier()));
+	}
+
+	if((componentMask & Caelum::CaelumSystem::CAELUM_COMPONENT_POINT_STARFIELD) == Caelum::CaelumSystem::CAELUM_COMPONENT_POINT_STARFIELD)
+	{
+		Caelum::PointStarfield *stars = mCaelum->getPointStarfield();
+		stars->setMagnitudeScale(getAttribReal(pStars, "magnitudeScale", stars->getMagnitudeScale()));
+		stars->setMag0PixelSize(getAttribReal(pStars, "mag0PixelSize", stars->getMag0PixelSize()));
+		stars->setMinPixelSize(getAttribReal(pStars, "minPixelSize", stars->getMinPixelSize()));
+		stars->setMaxPixelSize(getAttribReal(pStars, "maxPixelSize", stars->getMaxPixelSize()));
+	}
+
+	Caelum::CloudSystem *clouds = mCaelum->getCloudSystem();
+	if(!clouds)
+	{
+		clouds = new Caelum::CloudSystem(mSceneMgr, mCaelum->getCaelumCameraNode());
+		mCaelum->setCloudSystem(clouds);
+	}
+	clouds->clearLayers();
+	clouds->getLayerVector().clear();
+	rapidxml::xml_node<>* pClouds = XMLNode->first_node("clouds");
+	if(pClouds)
+	{
+		rapidxml::xml_node<>* pCloudLayer = pClouds->first_node("layer");
+		while(pCloudLayer)
+		{
+			Caelum::FlatCloudLayer *layer = clouds->createLayer();
+			layer->setVisibilityFlags(getAttribBool(pCloudLayer, "enable") == true ? 0xFFFFFFFF : 0);
+			layer->setCloudCover(getAttribReal(pCloudLayer, "coverage", layer->getCloudCover()));
+			layer->setHeight(getAttribReal(pCloudLayer, "height", layer->getHeight()));
+			attr = pCloudLayer->first_attribute("speed");
+			if(attr)
+				layer->setCloudSpeed(Ogre::StringConverter::parseVector2(attr->value(), layer->getCloudSpeed()));
+
+			pCloudLayer = pCloudLayer->next_sibling("layer");
+		}
+	}
+}
 
 Ogre::String DotSceneLoader::getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &attrib, const Ogre::String &defaultValue)
 {

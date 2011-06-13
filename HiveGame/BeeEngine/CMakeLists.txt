@@ -31,6 +31,8 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	"../OgreBullet/Dynamics/include"
 	"../PagedGeometry/include"
 	"../rapidxml"
+	"../Caelum/main/include"
+	"${Caelum_BINARY_DIR}/main/include"
 )
 
 add_library(BeeEngine STATIC ${SRCS} ${HDRS})

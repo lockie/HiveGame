@@ -46,6 +46,11 @@
 		class GrassLayer;
 	}
 
+    namespace Caelum
+    {
+        class CaelumSystem;
+    }
+
 	class nodeProperty
 	{
 	public:
@@ -79,6 +84,8 @@
 		std::vector<Forests::PagedGeometry *> mPGHandles;
 		std::vector<Forests::TreeLoader3D *> mTreeHandles;
 		Forests::GrassLoader* mGrassLoaderHandle;  /** Handle to Forests::GrassLoader object */
+		Caelum::CaelumSystem *mCaelum; /* Handle to Caelum object */
+
 	protected:
 		void processScene(rapidxml::xml_node<>* XMLRoot);
 
@@ -114,6 +121,8 @@
 
 		void processLightRange(rapidxml::xml_node<>* XMLNode, Ogre::Light *pLight);
 		void processLightAttenuation(rapidxml::xml_node<>* XMLNode, Ogre::Light *pLight);
+
+		void processCaelum(rapidxml::xml_node<>* XMLNode);
 
 		Ogre::String getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &parameter, const Ogre::String &defaultValue = "");
 		Ogre::Real getAttribReal(rapidxml::xml_node<>* XMLNode, const Ogre::String &parameter, Ogre::Real defaultValue = 0);

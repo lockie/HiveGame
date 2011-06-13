@@ -25,6 +25,8 @@
 
 #include "PagedGeometry.h"
 
+#include "Caelum.h"
+
 #include "GameObject.hpp"
 
 
@@ -62,6 +64,7 @@ private:
 	std::vector<Forests::PagedGeometry*> mPagedGeometryHandles;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
+	Caelum::CaelumSystem *mCaelum;
 
 };
 

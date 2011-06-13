@@ -76,6 +76,10 @@ add_subdirectory("OgreBullet")
 #
 add_subdirectory("PagedGeometry")
 
+# Собрать Caelum
+#
+add_subdirectory("Caelum")
+
 
 # BeeEngine
 #

@@ -81,6 +81,7 @@ bool World::Load(const String& filename)
 		mSceneMgr, mViewPort, mTerrainGlobalOptions);
 	mTerrainGroup = loader.getTerrainGroup();
 	mPagedGeometryHandles = loader.mPGHandles;
+	mCaelum = loader.mCaelum;
 	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
 		it != mPagedGeometryHandles.end(); ++it)
 	{
@@ -192,6 +193,8 @@ bool World::frameStarted(const FrameEvent& evt)
 bool World::frameEnded(const FrameEvent& evt)
 {
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
+	mCaelum->updateSubcomponents(evt.timeSinceLastFrame);
+	mCaelum->notifyCameraChanged(mViewPort->getCamera());
 	return true;
 }
 

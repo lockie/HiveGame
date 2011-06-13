@@ -19,6 +19,8 @@ include_directories(
 	"../OgreBullet/Dynamics/include"
 	"../PagedGeometry/include"
 	"../rapidxml"
+	"../Caelum/main/include"
+	"${Caelum_BINARY_DIR}/main/include"
 )
 
 if(WIN32)
@@ -32,7 +34,7 @@ if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release и экс
 	set_target_properties(HiveGame PROPERTIES LINK_FLAGS  "/implib:HiveGame.lib")
 endif()
 
-target_link_libraries(HiveGame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry)
+target_link_libraries(HiveGame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 install(
