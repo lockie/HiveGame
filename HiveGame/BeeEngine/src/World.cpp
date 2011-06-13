@@ -193,8 +193,11 @@ bool World::frameStarted(const FrameEvent& evt)
 bool World::frameEnded(const FrameEvent& evt)
 {
 	mWorld->stepSimulation(evt.timeSinceLastFrame);
-	mCaelum->updateSubcomponents(evt.timeSinceLastFrame);
-	mCaelum->notifyCameraChanged(mViewPort->getCamera());
+	if(mCaelum)
+	{
+		mCaelum->updateSubcomponents(evt.timeSinceLastFrame);
+		mCaelum->notifyCameraChanged(mViewPort->getCamera());
+	}
 	return true;
 }
 
