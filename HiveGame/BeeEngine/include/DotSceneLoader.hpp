@@ -51,6 +51,11 @@
         class CaelumSystem;
     }
 
+	namespace Hydrax
+	{
+		class Hydrax;
+	}
+
 	class nodeProperty
 	{
 	public:
@@ -85,6 +90,9 @@
 		std::vector<Forests::TreeLoader3D *> mTreeHandles;
 		Forests::GrassLoader* mGrassLoaderHandle;  /** Handle to Forests::GrassLoader object */
 		Caelum::CaelumSystem *mCaelum; /* Handle to Caelum object */
+		Hydrax::Hydrax *mHydrax; /* Handle to Hydrax object */
+		Ogre::Vector3 mOriginalWaterColor;
+		bool mHydraxCaelumIntegration;
 
 	protected:
 		void processScene(rapidxml::xml_node<>* XMLRoot);
@@ -123,6 +131,7 @@
 		void processLightAttenuation(rapidxml::xml_node<>* XMLNode, Ogre::Light *pLight);
 
 		void processCaelum(rapidxml::xml_node<>* XMLNode);
+		void processHydrax(rapidxml::xml_node<>* XMLNode);
 
 		Ogre::String getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &parameter, const Ogre::String &defaultValue = "");
 		Ogre::Real getAttribReal(rapidxml::xml_node<>* XMLNode, const Ogre::String &parameter, Ogre::Real defaultValue = 0);

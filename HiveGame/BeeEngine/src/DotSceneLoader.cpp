@@ -31,6 +31,10 @@
 
 #include "Caelum.h"
 
+#include "Hydrax.h"
+#include "Noise/Perlin/Perlin.h"
+#include "Modules/ProjectedGrid/ProjectedGrid.h"
+
 #ifdef _MSC_VER
 # pragma warning(disable:4390)
 #endif  // _MSC_VER
@@ -45,7 +49,7 @@ Ogre::Real OgitorTerrainGroupHeightFunction(Ogre::Real x, Ogre::Real z, void *us
 	return StaticGroupPtr->getHeightAtWorldPosition(x,0,z);
 }
 
-DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0), mCaelum(0)
+DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0), mCaelum(0), mHydrax(0)
 {
 	Ogre::LogManager::getSingleton().logMessage("[DotSceneLoader] Initializing");
 }
@@ -174,6 +178,10 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 		mResourcesDir + "/maps/Caelum", "FileSystem", Caelum::RESOURCE_GROUP_NAME);
 	Ogre::ResourceGroupManager::getSingletonPtr()->initialiseResourceGroup(
 		Caelum::RESOURCE_GROUP_NAME);
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+		mResourcesDir + "/maps/Hydrax", "FileSystem", HYDRAX_RESOURCE_GROUP);
+	Ogre::ResourceGroupManager::getSingletonPtr()->initialiseResourceGroup(
+		HYDRAX_RESOURCE_GROUP);
 	pElement = XMLRoot->first_node("resourceLocations");
 	if(pElement)
 		processResourceLocations(pElement);
@@ -224,6 +232,12 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 	if(pElement)
 		processTerrain(pElement);
 
+	// Process Hydrax
+	pElement = XMLRoot->first_node("hydrax");
+	if(pElement)
+		processHydrax(pElement);
+
+	// Process Caelum
 	pElement = XMLRoot->first_node("caelum");
 	if(pElement)
 		processCaelum(pElement);
@@ -641,6 +655,8 @@ void DotSceneLoader::processLight(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode
 
 void DotSceneLoader::processCamera(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent)
 {
+	return;
+
 	Ogre::String name = getAttrib(XMLNode, "name");
 	Ogre::LogManager::getSingleton().logMessage(
 		"[DotSceneLoader] Processing camera \"" + name + "\"");
@@ -1349,7 +1365,7 @@ void DotSceneLoader::processLightAttenuation(rapidxml::xml_node<>* XMLNode, Ogre
 
 void DotSceneLoader::processCaelum(rapidxml::xml_node<>* XMLNode)
 {
-	Ogre::LogManager::getSingleton().logMessage( "[DotSceneLoader] Process Caelum" );
+	Ogre::LogManager::getSingleton().logMessage( "[DotSceneLoader] Processing Caelum" );
 
 	int componentMask = Caelum::CaelumSystem::CAELUM_COMPONENT_SKY_DOME |
 		Caelum::CaelumSystem::CAELUM_COMPONENT_CLOUDS;
@@ -1526,6 +1542,40 @@ void DotSceneLoader::processCaelum(rapidxml::xml_node<>* XMLNode)
 			pCloudLayer = pCloudLayer->next_sibling("layer");
 		}
 	}
+}
+
+void DotSceneLoader::processHydrax(rapidxml::xml_node<>* XMLNode)
+{
+	Ogre::LogManager::getSingleton().logMessage( "[DotSceneLoader] Processing Hydrax" );
+
+	mHydrax = new Hydrax::Hydrax(mSceneMgr, mViewPort->getCamera(), mViewPort);
+	Hydrax::Module::ProjectedGrid *mModule =
+		new Hydrax::Module::ProjectedGrid(
+			// Hydrax parent pointer
+			mHydrax,
+			// Noise module
+			new Hydrax::Noise::Perlin(/* Generic one */),
+			// Base plane
+			Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
+			// Normal mode
+			Hydrax::MaterialManager::NM_VERTEX,
+			// Projected grid options
+			Hydrax::Module::ProjectedGrid::Options(64));
+	mHydrax->setModule(mModule);
+
+	mHydraxCaelumIntegration = getAttribBool(XMLNode, "caelumIntegration");
+	Ogre::String configFile = getAttrib(XMLNode, "configFile");
+	if(!configFile.empty())
+		mHydrax->loadCfg(configFile);
+
+	mOriginalWaterColor = mHydrax->getWaterColor();
+
+	mHydrax->create();
+
+	Ogre::TerrainGroup::TerrainIterator it = mTerrainGroup->getTerrainIterator();
+	while(it.hasMoreElements())
+		mHydrax->getMaterialManager()->addDepthTechnique(
+			it.getNext()->instance->getMaterial()->createTechnique());
 }
 
 Ogre::String DotSceneLoader::getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &attrib, const Ogre::String &defaultValue)

@@ -80,6 +80,10 @@ add_subdirectory("PagedGeometry")
 #
 add_subdirectory("Caelum")
 
+# Собрать Hydrax
+#
+add_subdirectory("Hydrax")
+
 
 # BeeEngine
 #

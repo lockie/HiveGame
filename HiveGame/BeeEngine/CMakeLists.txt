@@ -33,6 +33,7 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	"../rapidxml"
 	"../Caelum/main/include"
 	"${Caelum_BINARY_DIR}/main/include"
+	"../Hydrax"
 )
 
 add_library(BeeEngine STATIC ${SRCS} ${HDRS})

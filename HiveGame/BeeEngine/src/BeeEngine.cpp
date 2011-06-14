@@ -145,6 +145,8 @@ void BeeEngine::setupCharacter()
 void BeeEngine::createCamera()
 {
 	mCamera = mSceneMgr->createCamera("PlayerCamera");
+	mCamera->setNearClipDistance(0.1f);
+	mCamera->setFarClipDistance(9999*6);
 }
 
 void BeeEngine::createFrameListener()

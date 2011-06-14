@@ -31,9 +31,6 @@ private:
 	void createScene();
 	void setupCharacter();
 
-	// объекты сцены
-	Ogre::SharedPtr<GameObject> ninja, ground;
-
 };
 
 #endif // #ifndef __HiveGame_h__

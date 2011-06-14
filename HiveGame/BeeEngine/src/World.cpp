@@ -51,8 +51,8 @@ mTerrainGlobalOptions(NULL), mTerrainGroup(NULL)
 	// ¬ключить отладочную рисовашку
 	debugDrawer = new DebugDrawer();
 	debugDrawer->setDrawWireframe(true);
-	mWorld->setDebugDrawer(debugDrawer);
-	mWorld->setShowDebugShapes(true);
+	//mWorld->setDebugDrawer(debugDrawer);
+	//mWorld->setShowDebugShapes(true);
 	SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
 		"debugDrawer", Vector3::ZERO);
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
@@ -82,6 +82,9 @@ bool World::Load(const String& filename)
 	mTerrainGroup = loader.getTerrainGroup();
 	mPagedGeometryHandles = loader.mPGHandles;
 	mCaelum = loader.mCaelum;
+	mHydrax = loader.mHydrax;
+	mOriginalWaterColor = loader.mOriginalWaterColor;
+	mHydraxCaelumIntegration = loader.mHydraxCaelumIntegration;
 	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
 		it != mPagedGeometryHandles.end(); ++it)
 	{
@@ -197,6 +200,49 @@ bool World::frameEnded(const FrameEvent& evt)
 	{
 		mCaelum->updateSubcomponents(evt.timeSinceLastFrame);
 		mCaelum->notifyCameraChanged(mViewPort->getCamera());
+	}
+	if(mHydrax)
+	{
+		if(mHydraxCaelumIntegration && mCaelum)
+		{
+			Ogre::Vector3 value = mCaelum->getSun()->getSceneNode()->getPosition();
+			Ogre::ColourValue cval = mCaelum->getSun()->getBodyColour();
+			mHydrax->setSunPosition(value);
+			mHydrax->setSunColor(Ogre::Vector3(cval.r,cval.g,cval.b));
+
+			Caelum::LongReal mJulian = mCaelum->getUniversalClock()->getJulianDay();
+			cval = mCaelum->getSunLightColour(mJulian, mCaelum->getSunDirection(mJulian));
+			mHydrax->setWaterColor(Ogre::Vector3(cval.r - 0.3, cval.g - 0.2, cval.b));
+
+			Ogre::Vector3 col = mHydrax->getWaterColor();
+			float height = mHydrax->getSunPosition().y / 10.0f;
+
+			if(height < -99.0f)
+			{
+				col = mOriginalWaterColor * 0.1f;
+				height = 9999.0f;
+			}
+			else if(height < 1.0f)
+			{
+				col = mOriginalWaterColor * (0.1f + (0.009f * (height + 99.0f)));
+				height = 100.0f / (height + 99.001f);
+			}
+			else if(height < 2.0f)
+			{
+				col += mOriginalWaterColor;
+				col /= 2.0f;
+				float percent = (height - 1.0f);
+				col = (col * percent) + (mOriginalWaterColor * (1.0f - percent));
+			}
+			else
+			{
+				col += mOriginalWaterColor;
+				col	/= 2.0f;
+			}
+			mHydrax->setWaterColor(col);
+			mHydrax->setSunArea(height * 10);
+		}
+		mHydrax->update(evt.timeSinceLastFrame);
 	}
 	return true;
 }

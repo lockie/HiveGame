@@ -49,8 +49,6 @@ CharacterManager::CharacterManager(Camera* cam, const String& filename) :
 	mCameraGoal->setFixedYawAxis(true);
 	mCameraNode->setFixedYawAxis(true);
 	mCameraNode->attachObject(cam);
-	cam->setNearClipDistance(0.1f);
-	cam->setFarClipDistance(100);
 	mPivotPitch = 0;
 
 	if(!setModel(filename))
@@ -111,6 +109,7 @@ const Ogre::Vector3& CharacterManager::getPosition() const
 void CharacterManager::setPosition(const Vector3& pos)
 {
 	mBodyNode->setPosition(pos);
+	update(0);
 }
 
 void CharacterManager::update(Real deltaTime)

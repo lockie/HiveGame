@@ -31,34 +31,14 @@ HiveGame::~HiveGame()
 
 void HiveGame::createScene()
 {
-
-	// Свет и тень
-	mSceneMgr->setAmbientLight(ColourValue(0, 0, 0));
-	Light* directionalLight = mSceneMgr->createLight("sunLight");
-	directionalLight->setType(Light::LT_DIRECTIONAL);
-	directionalLight->setDiffuseColour(ColourValue(.8f, .58f, .26f));
-	directionalLight->setSpecularColour(ColourValue(.21f, .06f, .22f));
-	directionalLight->setDirection(Vector3(0, -10, -10));
-	mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
-
-
 	World::getSingletonPtr()->Load("test.scene");
-
-	// Пострендер-эффект
-	//CompositorManager::getSingleton().addCompositor(mViewport, "HDR");
-	//CompositorManager::getSingleton().setCompositorEnabled(mViewport,
-	//	"HDR", true);
-	//CompositorManager::getSingleton().addCompositor(mViewport, "Bloom");
-	//CompositorManager::getSingleton().setCompositorEnabled(mViewport,
-	//	"Bloom", true);
-
 }
 
 void HiveGame::setupCharacter()
 {
 	BeeEngine::setupCharacter();
 
-	mCharacterMan->setPosition(Vector3(-100, 195, -155));
+	mCharacterMan->setPosition(Vector3(-80, 195, -155));
 }
 
 

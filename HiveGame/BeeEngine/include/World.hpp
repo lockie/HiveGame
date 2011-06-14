@@ -27,6 +27,8 @@
 
 #include "Caelum.h"
 
+#include "Hydrax.h"
+
 #include "GameObject.hpp"
 
 
@@ -65,6 +67,9 @@ private:
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
 	Caelum::CaelumSystem *mCaelum;
+	Hydrax::Hydrax *mHydrax;
+	Ogre::Vector3 mOriginalWaterColor;
+	bool mHydraxCaelumIntegration;
 
 };
 
