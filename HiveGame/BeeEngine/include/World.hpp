@@ -53,6 +53,8 @@ public:
 		const Ogre::String& mesh, bool kinematic = false);
 	Ogre::SharedPtr<GameObject> addPlayer(Ogre::Entity*, Ogre::SceneNode*);
 
+	void getTime(int& hour, int& minute, int& second);
+
  	bool frameStarted(const Ogre::FrameEvent& evt);
  	bool frameEnded(const Ogre::FrameEvent& evt);
 	bool frameRenderingQueued(const Ogre::FrameEvent& evt);

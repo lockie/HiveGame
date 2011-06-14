@@ -187,6 +187,17 @@ Ogre::SharedPtr<GameObject> World::addPlayer(Ogre::Entity* entity, Ogre::SceneNo
 	return SharedPtr<GameObject>(new GameObject("Player", mSceneMgr, entity, node, shape, body));
 }
 
+void World::getTime(int& hour, int& minute, int& second)
+{
+	unsigned long long sec = mCaelum->getUniversalClock()->getJulianSecond();
+	sec %= (60 * 60 * 24);
+	hour = sec / (60 * 60);
+	minute = (sec - hour * 60 * 60) / 60;
+	second = sec - minute * 60 - hour * 60 * 60;
+
+	hour += 12; hour %= 24;
+}
+
 bool World::frameStarted(const FrameEvent& evt)
 {
 	mWorld->stepSimulation(evt.timeSinceLastFrame);

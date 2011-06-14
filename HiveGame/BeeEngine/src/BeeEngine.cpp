@@ -177,6 +177,8 @@ void BeeEngine::createFrameListener()
 	items.push_back("Poly Mode");
 	items.push_back("");
 	items.push_back("Press B");
+	items.push_back("");
+	items.push_back("Time");
 
 	mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE,
 		"DetailsPanel", 220, items);
@@ -386,6 +388,10 @@ bool BeeEngine::frameRenderingQueued(const FrameEvent& evt)
 			mDetailsPanel->setParamValue(7,
 				StringConverter::toString(mCamera->getDerivedOrientation().z));
 			mDetailsPanel->setParamValue(12, "get COPROCUBE!");
+
+			int hour, minute, second;
+			World::getSingleton().getTime(hour, minute, second);
+			mDetailsPanel->setParamValue(14, StringConverter::toString(hour)+":"+StringConverter::toString(minute));
 		}
 	}
 
