@@ -232,7 +232,7 @@ Real VertexIndexToShape::getRadius()
 	if (mBoundRadius == (-1))
 	{
 		getSize();
-		mBoundRadius = (std::max(mBounds.x,std::max(mBounds.y,mBounds.z)) * 0.5);
+		mBoundRadius = (std::max(mBounds.x,std::max(mBounds.y,mBounds.z)) * 0.5f);
 	}
 	return mBoundRadius;
 }
@@ -340,7 +340,7 @@ ConvexHullCollisionShape* VertexIndexToShape::createConvex()
 
 	//create a hull approximation
 	btShapeHull* hull = new btShapeHull(tmpConvexShape);
-	btScalar margin = 0.001;//tmpConvexShape->getMargin();
+	btScalar margin = 0.001f;//tmpConvexShape->getMargin();
 	hull->buildHull(margin);
 	tmpConvexShape->setUserPointer(hull);
 
@@ -944,9 +944,9 @@ BoxCollisionShape* AnimatedMeshToShapeConverter::createAlignedBox(unsigned char 
 	BoxCollisionShape* box = new BoxCollisionShape(maxMinusMin);
 
 	const Ogre::Vector3 pos
-		(min_vec.x + (maxMinusMin.x * 0.5),
-		min_vec.y + (maxMinusMin.y * 0.5),
-		min_vec.z + (maxMinusMin.z * 0.5));
+		(min_vec.x + (maxMinusMin.x * 0.5f),
+		min_vec.y + (maxMinusMin.y * 0.5f),
+		min_vec.z + (maxMinusMin.z * 0.5f));
 
 	//box->setPosition(pos);
 
@@ -973,7 +973,7 @@ bool AnimatedMeshToShapeConverter::getOrientedBox(unsigned char bone,
 		 {
 			 box_kCenter += vertices[c];
 		 }
-		 const Ogre::Real invVertexCount = 1.0 / vertex_count;
+		 const Ogre::Real invVertexCount = 1.0f / vertex_count;
 		 box_kCenter *= invVertexCount;
 	 }
 	Quaternion orient = boneOrientation;
@@ -1019,9 +1019,9 @@ bool AnimatedMeshToShapeConverter::getOrientedBox(unsigned char bone,
 	box_afExtent.y = ((Real)0.5)*(fY1Max - fY1Min);
 	box_afExtent.z = ((Real)0.5)*(fY2Max - fY2Min);
 
-	box_kCenter += (0.5*(fY0Max+fY0Min))*box_akAxis[0] +
-		(0.5*(fY1Max+fY1Min))*box_akAxis[1] +
-		(0.5*(fY2Max+fY2Min))*box_akAxis[2];
+	box_kCenter += (0.5f*(fY0Max+fY0Min))*box_akAxis[0] +
+		(0.5f*(fY1Max+fY1Min))*box_akAxis[1] +
+		(0.5f*(fY2Max+fY2Min))*box_akAxis[2];
 
 	box_afExtent *= 2.0;
 

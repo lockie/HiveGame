@@ -74,9 +74,9 @@ namespace OgreBulletDynamics
 			i!=m_bodies.end();
 			++i) 
 		{
-			(*i)->setDamping(0.05, 0.85);
-			(*i)->setDeactivationTime(0.8);
-			(*i)->setSleepingThresholds(1.6, 2.5);
+			(*i)->setDamping(0.05f, 0.85f);
+			(*i)->setDeactivationTime(0.8f);
+			(*i)->setSleepingThresholds(1.6f, 2.5f);
 		}
 
 		// Now setup the constraints

@@ -59,7 +59,7 @@ namespace OgreBulletCollisions
         _point = _world->getSceneManager()->createEntity(name + String("_debug_point"), "sphere.mesh");
         _point_node = _node->createChildSceneNode ();
         _point_node->attachObject (_point);
-        _point_node->setScale(0.001, 0.001, 0.001);
+        _point_node->setScale(0.001f, 0.001f, 0.001f);
 
         // normal direction debug
          _normal = new DebugNormal();
@@ -354,7 +354,7 @@ namespace OgreBulletCollisions
 
         // Derive space width from a capital A
         if (mSpaceWidth == 0)
-            mSpaceWidth = mpFont->getGlyphAspectRatio('A') * mCharHeight * 2.0;
+            mSpaceWidth = mpFont->getGlyphAspectRatio('A') * mCharHeight * 2;
 
         // for calculation of AABB
         Ogre::Vector3 min, max, currPos;
@@ -374,7 +374,7 @@ namespace OgreBulletCollisions
             for (i = mCaption.begin(); i != iend; ++i)
             {
                 if (*i == '\n')
-                    top += mCharHeight * 2.0;
+                    top += mCharHeight * 2.0f;
             }
         }
 
@@ -388,7 +388,7 @@ namespace OgreBulletCollisions
                     if (*j == ' ')
                         len += mSpaceWidth;
                     else 
-                        len += mpFont->getGlyphAspectRatio(*j) * mCharHeight * 2.0;
+                        len += mpFont->getGlyphAspectRatio(*j) * mCharHeight * 2.0f;
                 }
                 newLine = false;
             }
@@ -396,7 +396,7 @@ namespace OgreBulletCollisions
             if (*i == '\n')
             {
                 left = 0 * 2.0 - 1.0;
-                top -= mCharHeight * 2.0;
+                top -= mCharHeight * 2.0f;
                 newLine = true;
                 continue;
             }
@@ -451,7 +451,7 @@ namespace OgreBulletCollisions
                 maxSquaredRadius = std::max(maxSquaredRadius, currPos.squaredLength());
             }
 
-            top -= mCharHeight * 2.0;
+            top -= mCharHeight * 2.0f;
 
             // Bottom left
             if(mHorizontalAlignment == DebugContactText::H_LEFT)
@@ -472,8 +472,8 @@ namespace OgreBulletCollisions
             max.makeCeil(currPos);
             maxSquaredRadius = std::max(maxSquaredRadius, currPos.squaredLength());
 
-            top += mCharHeight * 2.0;
-            left += horiz_height * mCharHeight * 2.0;
+            top += mCharHeight * 2.0f;
+            left += horiz_height * mCharHeight * 2.0f;
 
             // Top right
             if(mHorizontalAlignment == DebugContactText::H_LEFT)
@@ -513,8 +513,8 @@ namespace OgreBulletCollisions
             max.makeCeil(currPos);
             maxSquaredRadius = std::max(maxSquaredRadius, currPos.squaredLength());
 
-            top -= mCharHeight * 2.0;
-            left -= horiz_height  * mCharHeight * 2.0;
+            top -= mCharHeight * 2.0f;
+            left -= horiz_height  * mCharHeight * 2.0f;
 
             // Bottom left (again)
             if(mHorizontalAlignment == DebugContactText::H_LEFT)
@@ -531,7 +531,7 @@ namespace OgreBulletCollisions
             max.makeCeil(currPos);
             maxSquaredRadius = std::max(maxSquaredRadius, currPos.squaredLength());
 
-            left += horiz_height  * mCharHeight * 2.0;
+            left += horiz_height  * mCharHeight * 2.0f;
 
             // Bottom right
             if(mHorizontalAlignment == DebugContactText::H_LEFT)
@@ -550,7 +550,7 @@ namespace OgreBulletCollisions
             maxSquaredRadius = std::max(maxSquaredRadius, currPos.squaredLength());
 
             // Go back up with top
-            top += mCharHeight * 2.0;
+            top += mCharHeight * 2.0f;
 
             float currentWidth = (left + 1)/2 - 0;
             if (currentWidth > largestWidth)
