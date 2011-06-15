@@ -25,7 +25,7 @@ set(BUILD_SHARED_LIBS OFF)
 include_directories(${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
-	${BULLET_INCLUDE_DIR}
+	${BULLET_INCLUDE_DIRS}
 	"include"
 	"../OgreBullet/Collisions/include"
 	"../OgreBullet/Dynamics/include"

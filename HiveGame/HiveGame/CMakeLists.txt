@@ -12,7 +12,7 @@ include_directories(
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
-	${BULLET_INCLUDE_DIR}
+	${BULLET_INCLUDE_DIRS}
 	"include"
 	"../BeeEngine/include"
 	"../OgreBullet/Collisions/include"

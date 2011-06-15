@@ -64,9 +64,23 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
-# Найти Bullet
+# Собрать Bullet
 #
-find_package(Bullet)
+add_subdirectory("Bullet")
+mark_as_advanced(FORCE BUILD_AMD_OPENCL_DEMOS)
+mark_as_advanced(FORCE BUILD_CPU_DEMOS)
+mark_as_advanced(FORCE BUILD_DEMOS)
+mark_as_advanced(FORCE BUILD_EXTRAS)
+mark_as_advanced(FORCE BUILD_MINICL_OPENCL_DEMOS)
+mark_as_advanced(FORCE BUILD_NVIDIA_OPENCL_DEMOS)
+mark_as_advanced(FORCE BUILD_UNIT_TESTS)
+mark_as_advanced(FORCE USE_GRAPHICAL_BENCHMARK)
+mark_as_advanced(FORCE USE_GLUT)
+mark_as_advanced(FORCE USE_MSVC_RUNTIME_LIBRARY_DLL)
+mark_as_advanced(FORCE INSTALL_LIBS)
+mark_as_advanced(FORCE INSTALL_EXTRA_LIBS)
+set(BULLET_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/Bullet/src/" "${CMAKE_SOURCE_DIR}/Bullet/Extras/ConvexDecomposition/")
+set(BULLET_LIBRARIES BulletDynamics BulletCollision LinearMath BulletSoftBody ConvexDecomposition)
 
 # Собрать OgreBullet
 #

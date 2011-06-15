@@ -51,8 +51,8 @@ mTerrainGlobalOptions(NULL), mTerrainGroup(NULL)
 	// ¬ключить отладочную рисовашку
 	debugDrawer = new DebugDrawer();
 	debugDrawer->setDrawWireframe(true);
-	//mWorld->setDebugDrawer(debugDrawer);
-	//mWorld->setShowDebugShapes(true);
+	mWorld->setDebugDrawer(debugDrawer);
+	mWorld->setShowDebugShapes(true);
 	SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
 		"debugDrawer", Vector3::ZERO);
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
