@@ -80,6 +80,10 @@ else(NOT QT4_FOUND)
 	set_target_properties(OgModularZone PROPERTIES COMPILE_DEFINITIONS PLUGIN_EXPORT)
 	set_target_properties(OgModularZone PROPERTIES SOLUTION_FOLDER Plugins) 
 
+		if(UNIX)
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+		endif(UNIX)
+
 	if(UNIX AND NOT APPLE)
 		add_custom_command(TARGET OgModularZone PRE_BUILD
 			COMMAND mkdir -p ../../RunPath/Plugins)

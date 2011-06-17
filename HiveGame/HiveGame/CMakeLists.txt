@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(Hivegame)
+
 set(HDRS
 	include/HiveGame.hpp
 )
@@ -25,21 +27,22 @@ include_directories(
 )
 
 if(WIN32)
-	add_executable(HiveGame WIN32 ${SRCS} ${HDRS} res/icon.rc)
+	add_executable(Hivegame WIN32 ${SRCS} ${HDRS} res/icon.rc)
 endif(WIN32)
 if(UNIX)
-	add_executable(HiveGame ${SRCS} ${HDRS})
+	add_executable(Hivegame ${SRCS} ${HDRS})
 endif(UNIX)
 if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release и экспортом символов из exe-шников, блеать
-	set_target_properties(HiveGame PROPERTIES PREFIX "../")
-	set_target_properties(HiveGame PROPERTIES LINK_FLAGS  "/implib:HiveGame.lib")
+	set_target_properties(Hivegame PROPERTIES PREFIX "../")
+	set_target_properties(Hivegame PROPERTIES LINK_FLAGS  "/implib:Hivegame.lib")
 endif()
 
-target_link_libraries(HiveGame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+target_link_libraries(Hivegame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax)
+set_target_properties(Hivegame PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR})
 
 install(
-	TARGETS HiveGame
+	TARGETS Hivegame
 	COMPONENT Binaries
 	RUNTIME DESTINATION bin
 )
@@ -121,7 +124,7 @@ set(CPACK_NSIS_CONTACT "fake0mail0@gmail.com")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.txt")
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 SetOutPath '$INSTDIR\\\\bin'
-CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\HiveGame.lnk' '$INSTDIR\\\\bin\\\\HiveGame.exe'
+CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\HiveGame.lnk' '$INSTDIR\\\\bin\\\\Hivegame.exe'
 File /a '$%VS90COMNTOOLS%\\\\..\\\\..\\\\VC\\\\redist\\\\x86\\\\Microsoft.VC90.CRT\\\\*'
 IfFileExists $INSTDIR\\\\* +2
 CreateDirectory $INSTDIR

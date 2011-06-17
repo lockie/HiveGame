@@ -53,6 +53,10 @@ COMPILE_DEFINITIONS PLUGIN_EXPORT
 set_target_properties(OgSkyx PROPERTIES 
     SOLUTION_FOLDER Plugins) 
 
+if(UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+endif(UNIX)
+
 IF(UNIX AND NOT APPLE)
     add_custom_command( TARGET OgSkyx PRE_BUILD
         COMMAND mkdir -p ../../RunPath/Plugins )

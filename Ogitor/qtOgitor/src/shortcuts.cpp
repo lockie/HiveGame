@@ -48,7 +48,7 @@ Shortcuts* Shortcuts::getInstance()
        QMessageBox msgBox;
        msgBox.setText("Some function wanted the instance of the\nShortcuts class what is nonexistent at the moment.\nThis is probably a bug.");
        msgBox.setWindowTitle("Shortcut instance not found!");
-       msgBox.setIcon(QMessageBox::Icon::Critical);
+       msgBox.setIcon(QMessageBox::Critical);
        msgBox.exec();
     }
 

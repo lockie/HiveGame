@@ -15,6 +15,7 @@ if (MSVC)
 	set_target_properties(OgreBulletCol PROPERTIES COMPILE_FLAGS "/YuOgreBulletCollisions.h")
 	set_source_files_properties(Collisions/src/OgreBulletCollisionsPrecompiled.cpp PROPERTIES COMPILE_FLAGS "/YcOgreBulletCollisions.h")
 endif(MSVC)
+target_link_libraries(OgreBulletCol ${OGRE_LIBRARIES} ${BULLET_LIBRARIES})
 
 AUX_SOURCE_DIRECTORY(Dynamics/src dyn_src0)
 AUX_SOURCE_DIRECTORY(Dynamics/src/Constraints dyn_src1)
@@ -24,3 +25,5 @@ if (MSVC)
 	set_target_properties(OgreBulletDyn PROPERTIES COMPILE_FLAGS "/YuOgreBulletDynamics.h")
 	set_source_files_properties(Dynamics/src/OgreBulletDynamicsPrecompiled.cpp PROPERTIES COMPILE_FLAGS "/YcOgreBulletDynamics.h")
 endif(MSVC)
+target_link_libraries(OgreBulletDyn ${OGRE_LIBRARIES} ${BULLET_LIBRARIES})
+

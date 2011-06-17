@@ -29,6 +29,8 @@ set(LIBNAME "Caelum")
 # build static libs by default
 SET(BUILD_SHARED_LIBS OFF)
 
+include_directories(${Boost_INCLUDE_DIRS} ${OGRE_INCLUDE_DIR})
+
 # some optimization flags
 if(MSVC)
   # add multi processor compilation flags
@@ -38,7 +40,7 @@ if(MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}          /MP /Od /Zi")
   # some general flags
   add_definitions("-D_CRT_SECURE_NO_WARNINGS -DCAELUM_LIB -DCAELUM_SCRIPT_SUPPORT -D_CAELUM_TYPE_DESCRIPTORS")
-  include_directories(${Boost_INCLUDE_DIRS} ${OGRE_INCLUDE_DIRS} ${DirectX_INCLUDE_DIR})
+  include_directories(${DirectX_INCLUDE_DIR})
 
   set(CMAKE_EXE_LINKER_FLAGS_DEBUG          "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DEBUG /SUBSYSTEM:WINDOWS")
   set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /SUBSYSTEM:WINDOWS /LTCG /OPT:REF")

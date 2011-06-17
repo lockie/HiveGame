@@ -52,6 +52,10 @@ IF(WIN32)
         COMMAND copy \"$(TargetPath)\" ..\\..\\RunPath\\Plugins & if exist ..\\..\\RunPath\\Plugins\\OgCaelum_d.dll move ..\\..\\RunPath\\Plugins\\OgCaelum_d.dll ..\\..\\RunPath\\Plugins\\debug)
 ENDIF(WIN32)
 
+if(UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+endif(UNIX)
+
 IF(UNIX AND NOT APPLE)
     add_custom_command( TARGET OgCaelum PRE_BUILD
         COMMAND mkdir -p ../../RunPath/Plugins )

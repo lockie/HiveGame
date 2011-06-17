@@ -147,6 +147,10 @@ IF(APPLE)
     set_target_properties(Ogitor PROPERTIES BUILD_WITH_INSTALL_RPATH 1 INSTALL_NAME_DIR "@executable_path/../Frameworks")
 ENDIF(APPLE)
 
+if(UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+endif(UNIX)
+
 IF(WIN32)
     add_custom_command( TARGET Ogitor PRE_BUILD
         COMMAND if not exist ..\\RunPath\\bin mkdir ..\\RunPath\\bin )
