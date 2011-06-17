@@ -1542,6 +1542,18 @@ void DotSceneLoader::processCaelum(rapidxml::xml_node<>* XMLNode)
 			pCloudLayer = pCloudLayer->next_sibling("layer");
 		}
 	}
+
+	if(mHydrax)
+	{
+		Hydrax::RttManager* rttMgr = mHydrax->getRttManager();
+		if(rttMgr)
+		{
+			std::vector<Ogre::RenderQueueGroupID> v =
+				rttMgr->getDisableReflectionCustomNearClipPlaneRenderQueues();
+			v.push_back(static_cast<Ogre::RenderQueueGroupID>(Caelum::CAELUM_RENDER_QUEUE_SKYDOME));
+			rttMgr->setDisableReflectionCustomNearCliplPlaneRenderQueues(v);
+		}
+	}
 }
 
 void DotSceneLoader::processHydrax(rapidxml::xml_node<>* XMLNode)
