@@ -1572,10 +1572,14 @@ void DotSceneLoader::processHydrax(rapidxml::xml_node<>* XMLNode)
 
 	mHydrax->create();
 
-	Ogre::TerrainGroup::TerrainIterator it = mTerrainGroup->getTerrainIterator();
-	while(it.hasMoreElements())
-		mHydrax->getMaterialManager()->addDepthTechnique(
-			it.getNext()->instance->getMaterial()->createTechnique());
+	if(mTerrainGroup)
+	{
+		Ogre::TerrainGroup::TerrainIterator it =
+			mTerrainGroup->getTerrainIterator();
+		while(it.hasMoreElements())
+			mHydrax->getMaterialManager()->addDepthTechnique(
+				it.getNext()->instance->getMaterial()->createTechnique());
+	}
 }
 
 Ogre::String DotSceneLoader::getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &attrib, const Ogre::String &defaultValue)

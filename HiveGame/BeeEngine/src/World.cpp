@@ -189,6 +189,11 @@ Ogre::SharedPtr<GameObject> World::addPlayer(Ogre::Entity* entity, Ogre::SceneNo
 
 void World::getTime(int& hour, int& minute, int& second)
 {
+	hour = minute = second = 0;
+
+	if(!mCaelum)
+		return;
+
 	unsigned long long sec = mCaelum->getUniversalClock()->getJulianSecond();
 	sec %= (60 * 60 * 24);
 	hour = sec / (60 * 60);
