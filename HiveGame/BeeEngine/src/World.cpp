@@ -233,6 +233,17 @@ bool World::frameEnded(const FrameEvent& evt)
 			Ogre::Vector3 col = mHydrax->getWaterColor();
 			float height = mHydrax->getSunPosition().y / 10.0f;
 
+			Hydrax::HydraxComponent c = mHydrax->getComponents();
+			if(height < 0)
+			{
+				if(mHydrax->isComponent(Hydrax::HYDRAX_COMPONENT_CAUSTICS))
+					mHydrax->setComponents(Hydrax::HydraxComponent(c ^ Hydrax::HYDRAX_COMPONENT_CAUSTICS));
+			} else
+			{
+				if(!mHydrax->isComponent(Hydrax::HYDRAX_COMPONENT_CAUSTICS))
+					mHydrax->setComponents(Hydrax::HydraxComponent(c | Hydrax::HYDRAX_COMPONENT_CAUSTICS));
+			}
+
 			if(height < -99.0f)
 			{
 				col = mOriginalWaterColor * 0.1f;
