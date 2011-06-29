@@ -6,6 +6,8 @@ project(BeeEngine)
 set(HDRS
 	include/BeeEngine.hpp
 	include/CharacterManager.hpp
+	include/Character.hpp
+	include/Terrain.hpp
 	include/World.hpp
 	include/GameObject.hpp
 	include/DotSceneLoader.hpp
@@ -14,6 +16,8 @@ set(HDRS
 set(SRCS
 	src/BeeEngine.cpp
 	src/CharacterManager.cpp
+	src/Character.cpp
+	src/Terrain.cpp
 	src/World.cpp
 	src/GameObject.cpp
 	src/DotSceneLoader.cpp
@@ -24,6 +28,7 @@ set(BUILD_SHARED_LIBS OFF)
 
 include_directories(${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
+	${OGRE_Paging_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
 	"include"

@@ -21,7 +21,15 @@
 #include <Shapes/OgreBulletCollisionsBoxShape.h>
 #include <Shapes/OgreBulletCollisionsCompoundShape.h>
 #include <Shapes/OgreBulletCollisionsConvexHullShape.h>
+#include <Shapes/OgreBulletCollisionsCapsuleShape.h>
+#include <Shapes/OgreBulletCollisionsTerrainShape.h>
 #include <Utils/OgreBulletCollisionsMeshToShapeConverter.h>
+#include <Debug/OgreBulletCollisionsDebugShape.h>
+#include "Shapes/OgreBulletCollisionsMultiSphereShape.h"
+
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
+#include <LinearMath/btQuickprof.h>
 
 #include "PagedGeometry.h"
 
@@ -43,10 +51,14 @@ template<> World* Ogre::Singleton<World>::ms_Singleton = NULL;
 World::World(SceneManager* sceneMgr, Viewport* viewPort, const String& resourcesDir, 
 	Vector3& gravityVector, AxisAlignedBox& bounds) :
 mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir),
-mTerrainGlobalOptions(NULL), mTerrainGroup(NULL)
+mTerrainGlobalOptions(NULL), mTerrainGroup(NULL),
+mTerrainPageManager(NULL), mTerrainPaging(NULL)
 {
 	// ¬ключить Bullet
 	mWorld = new DynamicsWorld(mSceneMgr, bounds, gravityVector);
+	// http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=6773
+	mWorld->getBulletCollisionWorld()->getDispatchInfo().
+		m_allowedCcdPenetration = 0.0001f;
 
 	// ¬ключить отладочную рисовашку
 	debugDrawer = new DebugDrawer();
@@ -57,13 +69,21 @@ mTerrainGlobalOptions(NULL), mTerrainGroup(NULL)
 		"debugDrawer", Vector3::ZERO);
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
 
+	mTerrainPhysics = new TerrainPhysicsProvider(mWorld);
+
 	ms_Singleton = this;
 }
 
 World::~World()
 {
+	OGRE_DELETE mTerrainPaging;
+	if(mTerrainPageManager)
+		mTerrainPageManager->removeCamera(mSceneMgr->getCamera("PlayerCamera"));
+	OGRE_DELETE mTerrainPageManager;
 	OGRE_DELETE mTerrainGroup;
 	OGRE_DELETE mTerrainGlobalOptions;
+
+	delete mTerrainPhysics;
 
 	delete mWorld->getDebugDrawer();
 	mWorld->setDebugDrawer(NULL);
@@ -72,14 +92,19 @@ World::~World()
 
 bool World::Load(const String& filename)
 {
+	OGRE_DELETE mTerrainPaging;
+	OGRE_DELETE mTerrainPageManager;
 	OGRE_DELETE mTerrainGroup;
 	OGRE_DELETE mTerrainGlobalOptions;
 
 	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions;
 	DotSceneLoader loader;
 	loader.parseDotScene(filename, "Scene", mResourcesDir,
-		mSceneMgr, mViewPort, mTerrainGlobalOptions);
+		mSceneMgr, mViewPort, mTerrainGlobalOptions, mTerrainPhysics);
 	mTerrainGroup = loader.getTerrainGroup();
+	mTerrainPaging = loader.mTerrainPaging;
+	mTerrainPageManager = loader.mPageManager;
+
 	mPagedGeometryHandles = loader.mPGHandles;
 	mCaelum = loader.mCaelum;
 	mHydrax = loader.mHydrax;
@@ -164,27 +189,42 @@ SharedPtr<GameObject> World::addMesh(const Ogre::String& name,
 	return SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body));
 }
 
-Ogre::SharedPtr<GameObject> World::addPlayer(Ogre::Entity* entity, Ogre::SceneNode* node)
+Ogre::SharedPtr<Character> World::createPlayer(const Ogre::String& mesh)
 {
-	AnimatedMeshToShapeConverter conv(entity);
-	// TODO : видимо, нужно отдельно прогрузить все кости и сделать из них композицию
-	CollisionShape* shape = //conv.createAlignedBox(0, Vector3::ZERO, Quaternion::ZERO);
-		conv.createConvex();
+	Entity* entity = mSceneMgr->createEntity("Player",
+		mesh);
+	SceneNode* node = mSceneMgr->getRootSceneNode()->
+		createChildSceneNode(Vector3::UNIT_Y * entity->getBoundingRadius());
+	node->attachObject(entity);
 
-	Vector3 position = node->getPosition();
-	Quaternion orientation = node->getOrientation();
-	RigidBody* body = new RigidBody("Player_phys", mWorld);
-	body->setShape(node,
-		shape,
-		default_restitution,
-		default_friction,
-		default_mass,
-		position,
-		orientation);
-	body->setKinematicObject(true);
-	body->disableDeactivation();
+	Vector3 size = entity->getBoundingBox().getSize();
+	Real factor = 1 - Ogre::MeshManager::getSingleton().getBoundsPaddingFactor();
+	// из документации к Bullet:
+	//  The total height is height+2*radius, so the height is just the height
+	//  between the center of each 'sphere' of the capsule caps.
+	Real radius = factor * std::max(size.x, size.z) / 2;
+	Real height = factor * size.y - 2 * radius;
+	if(height < 0)
+		height = 0;
 
-	return SharedPtr<GameObject>(new GameObject("Player", mSceneMgr, entity, node, shape, body));
+	CollisionShape* shape = new CapsuleCollisionShape(
+		radius, height, Vector3::UNIT_Y);
+
+	btPairCachingGhostObject* ghost = new btPairCachingGhostObject;
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(OgreBulletCollisions::OgreBtConverter::to(node->getPosition()));
+	ghost->setWorldTransform(startTransform);
+	ghost->setCollisionShape(shape->getBulletShape());
+	ghost->setFriction(0.01f);
+	ghost->setRestitution(default_restitution);
+	ghost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+	mWorld->getBulletDynamicsWorld()->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback);
+
+	mWorld->getBulletCollisionWorld()->addCollisionObject(ghost, btBroadphaseProxy::CharacterFilter);
+	Character* ch = new Character(entity, node, shape, ghost, mWorld);
+	mWorld->getBulletDynamicsWorld()->addAction(ch);
+	return SharedPtr<Character>(ch);
 }
 
 void World::getTime(int& hour, int& minute, int& second)
@@ -276,6 +316,7 @@ bool World::frameEnded(const FrameEvent& evt)
 
 bool World::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
+	mTerrainGroup->update();
 	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
 		it != mPagedGeometryHandles.end(); ++it)
 		(*it)->update();

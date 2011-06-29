@@ -27,7 +27,12 @@
 #include <OgreResourceGroupManager.h>
 #include <vector>
 
+#include <Terrain/OgreTerrainPaging.h>
+
 #include "rapidxml.hpp"
+
+#include "Terrain.hpp"
+
 
 	// Forward declarations
 	namespace Ogre
@@ -78,6 +83,7 @@
 			const Ogre::String &groupName, const Ogre::String& resourcesDir,
 			Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
 			Ogre::TerrainGlobalOptions* terrainOptions,
+			TerrainPhysicsProvider* terrainPhysics,
 			Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
 		Ogre::String getProperty(const Ogre::String &ndNm, const Ogre::String &prop);
 
@@ -86,6 +92,8 @@
 		std::vector<nodeProperty> nodeProperties;
 		std::vector<Ogre::String> staticObjects;
 		std::vector<Ogre::String> dynamicObjects;
+		Ogre::PageManager* mPageManager;
+		Ogre::TerrainPaging* mTerrainPaging;
 		std::vector<Forests::PagedGeometry *> mPGHandles;
 		std::vector<Forests::TreeLoader3D *> mTreeHandles;
 		Forests::GrassLoader* mGrassLoaderHandle;  /** Handle to Forests::GrassLoader object */
@@ -151,6 +159,7 @@
 		Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 		Ogre::Vector3 mTerrainPosition;
 		Ogre::Vector3 mLightDirection;
+		TerrainPhysicsProvider* mTerrainPhysicsProvider;
 
 		// paged geometry related values
 		int mPGPageSize;

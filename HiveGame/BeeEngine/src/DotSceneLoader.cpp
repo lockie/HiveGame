@@ -20,6 +20,7 @@
 #include "DotSceneLoader.hpp"
 #include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
+#include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrainGroup.h>
 #include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
@@ -49,7 +50,9 @@ Ogre::Real OgitorTerrainGroupHeightFunction(Ogre::Real x, Ogre::Real z, void *us
 	return StaticGroupPtr->getHeightAtWorldPosition(x,0,z);
 }
 
-DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0), mGrassLoaderHandle(0), mCaelum(0), mHydrax(0)
+DotSceneLoader::DotSceneLoader() : mSceneMgr(0), mTerrainGroup(0),
+ mGrassLoaderHandle(0), mCaelum(0), mHydrax(0),
+ mPageManager(0), mTerrainPaging(0)
 {
 	Ogre::LogManager::getSingleton().logMessage("[DotSceneLoader] Initializing");
 }
@@ -98,7 +101,7 @@ void ParseStringVector(Ogre::String &str, Ogre::StringVector &list)
 void DotSceneLoader::parseDotScene(const Ogre::String &SceneName,
 	const Ogre::String &groupName, const Ogre::String& resourcesDir,
 	Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
-	Ogre::TerrainGlobalOptions* terrainOptions,
+	Ogre::TerrainGlobalOptions* terrainOptions, TerrainPhysicsProvider* terrainPhysics,
 	Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
 {
 	Ogre::LogManager::getSingleton().logMessage(
@@ -110,6 +113,7 @@ void DotSceneLoader::parseDotScene(const Ogre::String &SceneName,
 	mViewPort = viewport;
 	mResourcesDir = resourcesDir;
 	mTerrainGlobalOptions = terrainOptions;
+	mTerrainPhysicsProvider = terrainPhysics;
 	m_sPrependNode = sPrependNode;
 	staticObjects.clear();
 	dynamicObjects.clear();
@@ -403,6 +407,24 @@ void DotSceneLoader::processTerrain(rapidxml::xml_node<>* XMLNode)
 	mTerrainGroup->setOrigin(Ogre::Vector3::ZERO);
 
 	mTerrainGroup->setResourceGroup(m_sGroupName);
+	mTerrainGroup->setFilenameConvention("Page", "ogt");
+
+	// TODO : я не особо заморачивался насчёт пейджинга террейнов, ибо сейчас
+	//  один чувачок, Император его храни, в рамках Google summer of code
+	//  пилит продвинутый террейн-пейджинг:
+	//  http://www.ogre3d.org/tikiwiki/SoC2011+Terrain+Paging+Improvements
+	//  http://www.ogre3d.org/forums/viewtopic.php?f=13&t=63796
+	//  Скорее всего, из-за этого API поменяется (я надеюсь, в сторону большей
+	//  ясности), и все равно придётся перепиливать.
+	mPageManager = OGRE_NEW Ogre::PageManager;
+	mPageManager->addStrategy(OGRE_NEW SynchronousGrid2DPageStrategy(mPageManager));
+	mPageManager->setPageProvider(mTerrainPhysicsProvider);
+	mPageManager->addCamera(mViewPort->getCamera());
+	mTerrainPaging = OGRE_NEW Ogre::TerrainPaging(mPageManager);
+	Ogre::PagedWorld* world = mPageManager->createWorld();
+	// TODO : разхардкодить
+	Ogre::TerrainPagedWorldSection* sect = mTerrainPaging->createWorldSection(
+		world, mTerrainGroup, 1000, 5000);
 
 	rapidxml::xml_node<>* pElement;
 	rapidxml::xml_node<>* pPageElement;
@@ -418,10 +440,7 @@ void DotSceneLoader::processTerrain(rapidxml::xml_node<>* XMLNode)
 			pPageElement = pPageElement->next_sibling("terrainPage");
 		}
 	}
-	mTerrainGroup->loadAllTerrains(true);
-
 	mTerrainGroup->freeTemporaryResources();
-	//mTerrain->setPosition(mTerrainPosition);
 }
 
 void DotSceneLoader::processTerrainPage(rapidxml::xml_node<>* XMLNode)
@@ -446,7 +465,7 @@ void DotSceneLoader::processTerrainPage(rapidxml::xml_node<>* XMLNode)
 
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists(mTerrainGroup->getResourceGroup(), name))
 	{
-		mTerrainGroup->defineTerrain(pageX, pageY, name);
+		//mTerrainGroup->defineTerrain(pageX, pageY, name);
 	}
 	
 	// grass layers

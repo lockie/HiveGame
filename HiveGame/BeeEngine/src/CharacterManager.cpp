@@ -20,21 +20,21 @@
 
 #include <OgreSceneManager.h>
 
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
+#include <Utils/OgreBulletConverter.h>
+
 using namespace std;
 using namespace Ogre;
 
 
 // TODO : разхардкодить!
-#define CHAR_HEIGHT 5          // высота центра масс персонажа
 #define CAM_HEIGHT 2           // высота камеры по отношеню к центру масс персонажа
-#define RUN_SPEED 17           // скорость бега персонажа, единиц/с
 #define TURN_SPEED 500.0f      // скорость поворота персонажа, град/с
-#define JUMP_ACCEL 30.0f       // ускорение прыжка, единиц/с^2
-#define GRAVITY 90.0f          // гравитация, единиц/с^2
 #define ANIM_FADE_SPEED 7.5f   // скорость перехода между анимациями, % от полного веса/с
 
 CharacterManager::CharacterManager(Camera* cam, const String& filename) :
- mCamera(cam), mKeyDirection(Vector3::ZERO), mVerticalVelocity(0)
+ mCamera(cam), mKeyDirection(Vector3::ZERO)
 {
 	// создать ось где-то у плеча персонажа
 	mCameraPivot = cam->getSceneManager()->getRootSceneNode()->createChildSceneNode();
@@ -64,7 +64,7 @@ CharacterManager::CharacterManager(Camera* cam, const String& filename) :
 	// проинициализировать список анимаций
 	for (int i = 0; i < NUM_ANIMS; i++)
 	{
-		mAnims[i] = mBodyEnt->getAnimationState(animNames[i]);
+		mAnims[i] = mPlayer->getAnimationState(animNames[i]);
 		mAnims[i]->setLoop(true);
 		mFadingIn[i] = false;
 		mFadingOut[i] = false;
@@ -86,14 +86,8 @@ bool CharacterManager::setModel(const String& filename)
 		return false;
 	try
 	{
-		mBodyNode = mCamera->getSceneManager()->getRootSceneNode()->
-			createChildSceneNode(Vector3::UNIT_Y * CHAR_HEIGHT);
-		mBodyEnt = mCamera->getSceneManager()->createEntity("Player",
-			filename);
-		mBodyEnt->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
-		mBodyNode->attachObject(mBodyEnt);
-		mBodyNode->rotate(Vector3::UNIT_Y, Degree(180));
-		mPlayer = World::getSingletonPtr()->addPlayer(mBodyEnt, mBodyNode);
+		mPlayer = World::getSingletonPtr()->createPlayer(filename);
+		mPlayer->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
 		return true;
 	} catch(Exception&)
 	{
@@ -103,13 +97,15 @@ bool CharacterManager::setModel(const String& filename)
 
 const Ogre::Vector3& CharacterManager::getPosition() const
 {
-	return mBodyNode->getPosition();
+	return mPlayer->getPosition();
 }
 
 void CharacterManager::setPosition(const Vector3& pos)
 {
-	mBodyNode->setPosition(pos);
+	mPlayer->setPosition(pos);
 	update(0);
+	mCameraNode->setPosition(mCameraPivot->getPosition() +
+		mCameraGoal->getPosition());
 }
 
 void CharacterManager::update(Real deltaTime)
@@ -117,6 +113,7 @@ void CharacterManager::update(Real deltaTime)
 	updateBody(deltaTime);
 	updateAnimations(deltaTime);
 	updateCamera(deltaTime);
+	mPlayer->update();
 }
 
 void CharacterManager::injectKeyDown(const OIS::KeyEvent& evt)
@@ -129,10 +126,14 @@ void CharacterManager::injectKeyDown(const OIS::KeyEvent& evt)
 	else if(evt.key == OIS::KC_SPACE &&
 		(mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
 	{
-		// прыгаем
-		setBaseAnimation(ANIM_JUMP_START, true);
-		setTopAnimation(ANIM_NONE);
-		mTimer = 0;
+		if(mPlayer->onGround())
+		{
+			// прыгаем
+			setBaseAnimation(ANIM_JUMP_START, true);
+			setTopAnimation(ANIM_NONE);
+			mTimer = 0;
+			mPlayer->jump();
+		}
 	}
 
 	if(!mKeyDirection.isZeroLength() && mBaseAnimID == ANIM_IDLE_BASE)
@@ -174,67 +175,47 @@ void CharacterManager::injectMouseDown(const OIS::MouseEvent& evt,
 
 void CharacterManager::updateBody(Real deltaTime)
 {
-	mGoalDirection = Vector3::ZERO;   // щас посчитаем
-	if(mKeyDirection != Vector3::ZERO)
-	{
-		// посчитать направление цели на основе направления игрока
-		mGoalDirection += mKeyDirection.z*mCameraNode->getOrientation().zAxis();
-		mGoalDirection += mKeyDirection.x*mCameraNode->getOrientation().xAxis();
-		mGoalDirection.y = 0;
-		mGoalDirection.normalise();
-		Quaternion toGoal = mBodyNode->getOrientation()
-			.zAxis().getRotationTo(mGoalDirection);
+	// посчитать направление цели на основе направления игрока
+	mGoalDirection = Vector3::ZERO;
+	mGoalDirection -= mKeyDirection.z*mCameraNode->getOrientation().zAxis();
+	mGoalDirection -= mKeyDirection.x*mCameraNode->getOrientation().xAxis();
+	mGoalDirection.normalise();
+	Quaternion toGoal = mPlayer->getOrientation()
+		.zAxis().getRotationTo(mGoalDirection);
 
-		// посчитать, насколько персонаж должен повернуться, чтобы увидеть цель
-		Real yawToGoal = toGoal.getYaw().valueDegrees();
-		// на столько персонаж может повернуться за этот фрейм
-		Real yawAtSpeed = yawToGoal / Math::Abs(yawToGoal) *
-			deltaTime * TURN_SPEED;
-		// снизить способность к повороту, если персонаж в воздухе
-		if(mBaseAnimID == ANIM_JUMP_LOOP)
-			yawAtSpeed *= 0.2f;
-
-		// повернуться настолько, насколько можно
-		if(yawToGoal < 0)
-			yawToGoal = min<Real>(0, max<Real>(yawToGoal, yawAtSpeed));
-		else if(yawToGoal > 0) yawToGoal =
-			max<Real>(0, min<Real>(yawToGoal, yawAtSpeed));
-		mBodyNode->yaw(Degree(yawToGoal));
-
-		// продвинуться в текущем направлении тела
-		mBodyNode->translate( 0, 0,
-			deltaTime * RUN_SPEED * mAnims[mBaseAnimID]->getWeight(),
-			Node::TS_LOCAL );
-
-		// грязнохак для того, чтобы не вылезать за пределы сцены
-		/*Real scene_size = 45.0;
-		Vector3 pos = mBodyNode->getPosition();
-		if(abs(pos.x) > scene_size)
-		{
-			pos.x = scene_size * pos.x / abs(pos.x);
-			mBodyNode->setPosition(pos);
-		}
-		if(abs(pos.z) > scene_size)
-		{
-			pos.z = scene_size * pos.z / abs(pos.z);
-			mBodyNode->setPosition(pos);
-		}*/
-	}
+	// посчитать, насколько персонаж должен повернуться, чтобы увидеть цель
+	Real yawToGoal = toGoal.getYaw().valueDegrees();
+	// на столько персонаж может повернуться за этот фрейм
+	Real yawAtSpeed = yawToGoal / Math::Abs(yawToGoal) *
+		deltaTime * TURN_SPEED;
+	// снизить способность к повороту, если персонаж в воздухе
 	if(mBaseAnimID == ANIM_JUMP_LOOP)
+		yawAtSpeed *= 0.2f;
+
+	// повернуться настолько, насколько можно
+	if(yawToGoal < 0)
+		yawToGoal = min<Real>(0, max<Real>(yawToGoal, yawAtSpeed));
+	else if(yawToGoal > 0) yawToGoal =
+		max<Real>(0, min<Real>(yawToGoal, yawAtSpeed));
+
+	btVector3 forwardDir =
+		mPlayer->getGhostObject()->getWorldTransform().getBasis()[2];
+	forwardDir.normalize ();
+
+	mPlayer->yaw(Degree(yawToGoal));
+
+	btVector3 walkDirection = btVector3(0, 0, 0);
+	if(mPlayer->onGround())
 	{
-		// если мы в прыжке, добавить вертикальное смещение и гравитацию
-		mBodyNode->translate(0, mVerticalVelocity * deltaTime, 0, Node::TS_LOCAL);
-		mVerticalVelocity -= GRAVITY * deltaTime;
-		
-		Vector3 pos = mBodyNode->getPosition();
-		if (pos.y <= CHAR_HEIGHT)
-		{
-			// если мы приземлились, сменить состояние анимации
-			pos.y = CHAR_HEIGHT;
-			mBodyNode->setPosition(pos);
-			setBaseAnimation(ANIM_JUMP_END, true);
-			mTimer = 0;
-		}
+		btScalar walkVelocity = btScalar(0.277) * 15.0f; // 15 km/h
+		// TODO : разхардкодить коэффициенты-коэффициентики
+		btScalar walkSpeed = walkVelocity * 0.1;//deltaTime;
+
+		if(mKeyDirection.length() != 0)
+			walkDirection += forwardDir;
+
+		walkDirection.setZ(-walkDirection.z());
+		mPlayer->setWalkDirection(walkDirection * walkSpeed);
 	}
 }
 
@@ -245,14 +226,22 @@ void CharacterManager::updateAnimations(Real deltaTime)
 
 	mTimer += deltaTime;
 
+	if(mPlayer->onGround() && mBaseAnimID == ANIM_JUMP_LOOP)
+	{
+		setBaseAnimation(ANIM_JUMP_END);
+	}
+	if(!mPlayer->onGround() && mBaseAnimID != ANIM_JUMP_LOOP)
+	{
+		setBaseAnimation(ANIM_JUMP_LOOP);
+		setTopAnimation(ANIM_NONE);
+		mTimer = 0;
+	}
 	if(mBaseAnimID == ANIM_JUMP_START)
 	{
 		if(mTimer >= mAnims[mBaseAnimID]->getLength())
 		{
 			// начать анимацию прыжка
 			setBaseAnimation(ANIM_JUMP_LOOP, true);
-			// добавить ускорение
-			mVerticalVelocity = JUMP_ACCEL;
 		}
 	}
 	else if(mBaseAnimID == ANIM_JUMP_END)
@@ -286,10 +275,12 @@ void CharacterManager::updateAnimations(Real deltaTime)
 void CharacterManager::updateCamera(Real deltaTime)
 {
 	// отпозиционировать ось камеры у плеча персонажа
-	mCameraPivot->setPosition(mBodyNode->getPosition() + Vector3::UNIT_Y * CAM_HEIGHT);
+	mCameraPivot->setPosition(mPlayer->getPosition() + Vector3::UNIT_Y * CAM_HEIGHT);
 	// мягко подвинуть камеру к цели
 	Vector3 goalOffset = mCameraGoal->_getDerivedPosition() - mCameraNode->getPosition();
-	mCameraNode->translate(goalOffset * deltaTime * 9.0f);
+	if(deltaTime < 0.1f)
+		goalOffset *= (deltaTime * 10);
+	mCameraNode->translate(goalOffset);
 	// всегда смотреть на ось
 	mCameraNode->lookAt(mCameraPivot->_getDerivedPosition(), Node::TS_WORLD);
 }

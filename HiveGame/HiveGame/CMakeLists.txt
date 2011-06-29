@@ -13,6 +13,7 @@ set(SRCS
 include_directories(
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
+	${OGRE_Paging_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
 	"include"
@@ -37,7 +38,7 @@ if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release и экс
 	set_target_properties(Hivegame PROPERTIES LINK_FLAGS  "/implib:Hivegame.lib")
 endif()
 
-target_link_libraries(Hivegame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax)
+target_link_libraries(Hivegame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OGRE_Paging_LIBRARIES} ${OIS_LIBRARIES} ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax)
 set_target_properties(Hivegame PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR})
 

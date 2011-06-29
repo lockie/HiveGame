@@ -15,8 +15,8 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __Character_h__
-#define __Character_h__
+#ifndef __CharacterManager_h__
+#define __CharacterManager_h__
 
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
@@ -26,7 +26,7 @@
 #include <OISKeyboard.h>
 #include <OISMouse.h>
 
-#include "GameObject.hpp"
+#include "Character.hpp"
 
 
 class CharacterManager
@@ -64,16 +64,13 @@ public:
 
 private:
 	Ogre::Camera* mCamera;
-	Ogre::SceneNode* mBodyNode;
-	Ogre::Entity* mBodyEnt;
-	Ogre::SharedPtr<GameObject> mPlayer;
+	Ogre::SharedPtr<Character> mPlayer;
 	Ogre::SceneNode* mCameraPivot;
 	Ogre::SceneNode* mCameraGoal;
 	Ogre::SceneNode* mCameraNode;
 	Ogre::Real mPivotPitch;
 
 	Ogre::Vector3 mKeyDirection;      // направление игрока на основе WASD
-	Ogre::Real mVerticalVelocity;     // для прыжков; TODO : заменить физикой
 	Ogre::Vector3 mGoalDirection;
 
 	Ogre::AnimationState* mAnims[NUM_ANIMS];    // главный список анимаций
@@ -96,5 +93,5 @@ private:
 
 };
 
-#endif  // #ifndef __Character_h__
+#endif  // #ifndef __CharacterManager_h__
 

@@ -362,7 +362,7 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		for(int x=startX; x<endX; x++)
 		{
 			btVector3 vertices[3];
-			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j+x) & 1)))
+			if (m_flipQuadEdges || (m_useDiamondSubdivision && !(j & 1)))
 			{
         //first triangle
         getVertex(x,j,vertices[0]);

@@ -22,6 +22,7 @@
 #include <OgreSharedPtr.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
+#include <Terrain/OgreTerrainPaging.h>
 
 #include "PagedGeometry.h"
 
@@ -29,7 +30,9 @@
 
 #include "Hydrax.h"
 
+#include "Terrain.hpp"
 #include "GameObject.hpp"
+#include "Character.hpp"
 
 
 class World: public Ogre::FrameListener, public Ogre::Singleton<World>
@@ -51,7 +54,7 @@ public:
 		Ogre::Real size);
 	Ogre::SharedPtr<GameObject> addMesh(const Ogre::String& name,
 		const Ogre::String& mesh, bool kinematic = false);
-	Ogre::SharedPtr<GameObject> addPlayer(Ogre::Entity*, Ogre::SceneNode*);
+	Ogre::SharedPtr<Character> createPlayer(const Ogre::String& mesh);
 
 	void getTime(int& hour, int& minute, int& second);
 
@@ -65,6 +68,9 @@ private:
 	Ogre::String mResourcesDir;
 	Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 	Ogre::TerrainGroup* mTerrainGroup;
+	TerrainPhysicsProvider* mTerrainPhysics;
+	Ogre::PageManager* mTerrainPageManager;
+	Ogre::TerrainPaging* mTerrainPaging;
 	std::vector<Forests::PagedGeometry*> mPagedGeometryHandles;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
