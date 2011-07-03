@@ -69,7 +69,7 @@ mTerrainPageManager(NULL), mTerrainPaging(NULL)
 		"debugDrawer", Vector3::ZERO);
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
 
-	mTerrainPhysics = new TerrainPhysicsProvider(mWorld);
+	mTerrainProvider = new TerrainProvider(mWorld);
 
 	ms_Singleton = this;
 }
@@ -83,7 +83,7 @@ World::~World()
 	OGRE_DELETE mTerrainGroup;
 	OGRE_DELETE mTerrainGlobalOptions;
 
-	delete mTerrainPhysics;
+	delete mTerrainProvider;
 
 	delete mWorld->getDebugDrawer();
 	mWorld->setDebugDrawer(NULL);
@@ -100,7 +100,7 @@ bool World::Load(const String& filename)
 	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions;
 	DotSceneLoader loader;
 	loader.parseDotScene(filename, "Scene", mResourcesDir,
-		mSceneMgr, mViewPort, mTerrainGlobalOptions, mTerrainPhysics);
+		mSceneMgr, mViewPort, mTerrainGlobalOptions, mTerrainProvider);
 	mTerrainGroup = loader.getTerrainGroup();
 	mTerrainPaging = loader.mTerrainPaging;
 	mTerrainPageManager = loader.mPageManager;

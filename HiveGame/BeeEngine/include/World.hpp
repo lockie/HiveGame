@@ -68,7 +68,7 @@ private:
 	Ogre::String mResourcesDir;
 	Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 	Ogre::TerrainGroup* mTerrainGroup;
-	TerrainPhysicsProvider* mTerrainPhysics;
+	TerrainProvider* mTerrainProvider;
 	Ogre::PageManager* mTerrainPageManager;
 	Ogre::TerrainPaging* mTerrainPaging;
 	std::vector<Forests::PagedGeometry*> mPagedGeometryHandles;

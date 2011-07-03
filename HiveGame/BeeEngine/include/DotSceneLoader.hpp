@@ -83,7 +83,7 @@
 			const Ogre::String &groupName, const Ogre::String& resourcesDir,
 			Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
 			Ogre::TerrainGlobalOptions* terrainOptions,
-			TerrainPhysicsProvider* terrainPhysics,
+			TerrainProvider* terrainProvider,
 			Ogre::SceneNode *pAttachNode = NULL, const Ogre::String &sPrependNode = "");
 		Ogre::String getProperty(const Ogre::String &ndNm, const Ogre::String &prop);
 
@@ -159,7 +159,7 @@
 		Ogre::TerrainGlobalOptions* mTerrainGlobalOptions;
 		Ogre::Vector3 mTerrainPosition;
 		Ogre::Vector3 mLightDirection;
-		TerrainPhysicsProvider* mTerrainPhysicsProvider;
+		TerrainProvider* mTerrainProvider;
 
 		// paged geometry related values
 		int mPGPageSize;

@@ -101,7 +101,7 @@ void ParseStringVector(Ogre::String &str, Ogre::StringVector &list)
 void DotSceneLoader::parseDotScene(const Ogre::String &SceneName,
 	const Ogre::String &groupName, const Ogre::String& resourcesDir,
 	Ogre::SceneManager *yourSceneMgr, Ogre::Viewport* viewport,
-	Ogre::TerrainGlobalOptions* terrainOptions, TerrainPhysicsProvider* terrainPhysics,
+	Ogre::TerrainGlobalOptions* terrainOptions, TerrainProvider* terrainProvider,
 	Ogre::SceneNode *pAttachNode, const Ogre::String &sPrependNode)
 {
 	Ogre::LogManager::getSingleton().logMessage(
@@ -113,7 +113,7 @@ void DotSceneLoader::parseDotScene(const Ogre::String &SceneName,
 	mViewPort = viewport;
 	mResourcesDir = resourcesDir;
 	mTerrainGlobalOptions = terrainOptions;
-	mTerrainPhysicsProvider = terrainPhysics;
+	mTerrainProvider = terrainProvider;
 	m_sPrependNode = sPrependNode;
 	staticObjects.clear();
 	dynamicObjects.clear();
@@ -231,15 +231,15 @@ void DotSceneLoader::processScene(rapidxml::xml_node<>* XMLRoot)
 		pElement = pElement->next_sibling("camera");
 	}
 
-	// Process terrain (?)
-	pElement = XMLRoot->first_node("terrain");
-	if(pElement)
-		processTerrain(pElement);
-
 	// Process Hydrax
 	pElement = XMLRoot->first_node("hydrax");
 	if(pElement)
 		processHydrax(pElement);
+
+	// Process terrain (?)
+	pElement = XMLRoot->first_node("terrain");
+	if(pElement)
+		processTerrain(pElement);
 
 	// Process Caelum
 	pElement = XMLRoot->first_node("caelum");
@@ -418,7 +418,7 @@ void DotSceneLoader::processTerrain(rapidxml::xml_node<>* XMLNode)
 	//  ясности), и все равно придётся перепиливать.
 	mPageManager = OGRE_NEW Ogre::PageManager;
 	mPageManager->addStrategy(OGRE_NEW SynchronousGrid2DPageStrategy(mPageManager));
-	mPageManager->setPageProvider(mTerrainPhysicsProvider);
+	mPageManager->setPageProvider(mTerrainProvider);
 	mPageManager->addCamera(mViewPort->getCamera());
 	mTerrainPaging = OGRE_NEW Ogre::TerrainPaging(mPageManager);
 	Ogre::PagedWorld* world = mPageManager->createWorld();
@@ -1603,14 +1603,7 @@ void DotSceneLoader::processHydrax(rapidxml::xml_node<>* XMLNode)
 
 	mHydrax->create();
 
-	if(mTerrainGroup)
-	{
-		Ogre::TerrainGroup::TerrainIterator it =
-			mTerrainGroup->getTerrainIterator();
-		while(it.hasMoreElements())
-			mHydrax->getMaterialManager()->addDepthTechnique(
-				it.getNext()->instance->getMaterial()->createTechnique());
-	}
+	mTerrainProvider->setHydraxMaterialManager(mHydrax->getMaterialManager());
 }
 
 Ogre::String DotSceneLoader::getAttrib(rapidxml::xml_node<>* XMLNode, const Ogre::String &attrib, const Ogre::String &defaultValue)

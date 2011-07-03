@@ -29,6 +29,12 @@
 #include <OgreBulletDynamicsRigidBody.h>
 
 
+// forward
+namespace Hydrax
+{
+	class MaterialManager;
+}
+
 class SynchronousGrid2DPageStrategy : public Ogre::Grid2DPageStrategy
 {
 public:
@@ -56,12 +62,14 @@ private:
 	Ogre::Real* mData;
 };
 
-class TerrainPhysicsProvider : public Ogre::PageProvider
+class TerrainProvider : public Ogre::PageProvider
 {
 public:
-	TerrainPhysicsProvider(OgreBulletDynamics::DynamicsWorld* bulletWorld) :
-	  mWorld(bulletWorld) {}
-	~TerrainPhysicsProvider();
+	TerrainProvider(OgreBulletDynamics::DynamicsWorld* bulletWorld) :
+	  mWorld(bulletWorld), mMaterialManager(NULL) {}
+	~TerrainProvider();
+
+	void setHydraxMaterialManager(Hydrax::MaterialManager* manager);
 
 	bool prepareProceduralPage(Ogre::Page* page,
 		Ogre::PagedWorldSection* section);
@@ -71,6 +79,7 @@ public:
 private:
 	std::map<Ogre::PageID, TerrainPhysics*> mTerrainPhysics;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
+	Hydrax::MaterialManager* mMaterialManager;
 
 };
 

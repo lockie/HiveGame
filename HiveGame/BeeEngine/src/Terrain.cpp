@@ -18,6 +18,8 @@
 #include <Terrain/OgreTerrainGroup.h>
 #include <Terrain/OgreTerrainPagedWorldSection.h>
 
+#include "Hydrax.h"
+
 #include "Terrain.hpp"
 
 using namespace Ogre;
@@ -94,7 +96,7 @@ TerrainPhysics::~TerrainPhysics()
 	delete[] mData;
 }
 
-TerrainPhysicsProvider::~TerrainPhysicsProvider()
+TerrainProvider::~TerrainProvider()
 {
 	for(std::map<PageID, TerrainPhysics*>::iterator it = mTerrainPhysics.begin();
 		it != mTerrainPhysics.end(); ++it)
@@ -105,16 +107,31 @@ TerrainPhysicsProvider::~TerrainPhysicsProvider()
 	mTerrainPhysics.clear();
 }
 
-bool TerrainPhysicsProvider::prepareProceduralPage(Ogre::Page* page,
+void TerrainProvider::setHydraxMaterialManager(Hydrax::MaterialManager* manager)
+{
+	mMaterialManager = manager;
+}
+
+bool TerrainProvider::prepareProceduralPage(Ogre::Page* page,
 	Ogre::PagedWorldSection* section)
 {
 	Ogre::TerrainGroup* pGroup = 
 		((Ogre::TerrainPagedWorldSection*)section)->getTerrainGroup();
 	long x, y;
 	pGroup->unpackIndex(page->getID(), &x, &y);
-	if(!pGroup->getTerrain(x, y) || !pGroup->getTerrain(x, y)->getHeightData())
+	if(!pGroup->getTerrain(x, y))
 		return false;
 
+	// добавить технику глубины в материал террейна
+	//
+	mMaterialManager->addDepthTechnique(
+		pGroup->getTerrain(x, y)->getMaterial()->createTechnique());
+
+	if(!pGroup->getTerrain(x, y)->getHeightData())
+		return false;
+
+	// загрузить карту высот террейна в физический движок
+	//
 	uint16 size = pGroup->getTerrain(x, y)->getSize();
 	Real* data = new Real[size*size];
 	for(uint16 i = 0; i < size; i++)
@@ -140,7 +157,7 @@ bool TerrainPhysicsProvider::prepareProceduralPage(Ogre::Page* page,
 	return true;
 }
 
-bool TerrainPhysicsProvider::unprepareProceduralPage(Ogre::Page* page,
+bool TerrainProvider::unprepareProceduralPage(Ogre::Page* page,
 	Ogre::PagedWorldSection* section)
 {
 	std::map<PageID, TerrainPhysics*>::iterator it =
