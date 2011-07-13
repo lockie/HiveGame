@@ -19,6 +19,7 @@
 #include <OgreBulletDynamicsRigidBody.h>
 #include <Shapes/OgreBulletCollisionsStaticPlaneShape.h>
 #include <Shapes/OgreBulletCollisionsBoxShape.h>
+#include <Shapes/OgreBulletCollisionsSphereShape.h>
 #include <Shapes/OgreBulletCollisionsCompoundShape.h>
 #include <Shapes/OgreBulletCollisionsConvexHullShape.h>
 #include <Shapes/OgreBulletCollisionsCapsuleShape.h>
@@ -85,6 +86,8 @@ World::~World()
 
 	delete mTerrainProvider;
 
+	objects.clear();
+
 	delete mWorld->getDebugDrawer();
 	mWorld->setDebugDrawer(NULL);
 	delete mWorld;
@@ -96,6 +99,7 @@ bool World::Load(const String& filename)
 	OGRE_DELETE mTerrainPageManager;
 	OGRE_DELETE mTerrainGroup;
 	OGRE_DELETE mTerrainGlobalOptions;
+	objects.clear();
 
 	mTerrainGlobalOptions = OGRE_NEW Ogre::TerrainGlobalOptions;
 	DotSceneLoader loader;
@@ -138,19 +142,26 @@ SharedPtr<GameObject> World::addPlane(const Ogre::String& name, const Plane& p,
 	RigidBody* body = new RigidBody(name + "_phys", mWorld);
 	body->setStaticShape(shape, default_restitution, default_friction);
 
-	return SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body));
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	return objects.back();
 }
 
-SharedPtr<GameObject> World::addBox(const String& name, Ogre::Real size)
+SharedPtr<GameObject> World::addBox(const String& name, Real size,
+	Entity* entity, SceneNode* node)
 {
-	Entity* entity = mSceneMgr->createEntity(name + "_ent", "cube.mesh");
-	SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-		name + "_node");
-	node->attachObject(entity);
-	node->scale(size, size, size);
+	if(!entity)
+		entity = mSceneMgr->createEntity(name + "_ent", "cube.mesh");
+	if(!node)
+	{
+		node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			name + "_node");
+		node->attachObject(entity);
+		node->scale(size, size, size);  // TODO : is it scale?
+	}
 
 	CollisionShape* shape = 
-		new BoxCollisionShape(size * entity->getBoundingBox().getSize() / 2);
+		new BoxCollisionShape(entity->getBoundingBox().getSize() / 2);
+	shape->getBulletShape()->setLocalScaling(OgreBtConverter::to(node->getScale()));
 	RigidBody* body = new RigidBody(name + "_phys", mWorld);
 	body->setShape(node,
 		shape,
@@ -160,19 +171,53 @@ SharedPtr<GameObject> World::addBox(const String& name, Ogre::Real size)
 		Vector3::ZERO,
 		Quaternion::IDENTITY);
 
-	return SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body));
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	return objects.back();
 }
 
-SharedPtr<GameObject> World::addMesh(const Ogre::String& name,
-	const Ogre::String& mesh, bool kinematic)
+SharedPtr<GameObject> World::addSphere(const String& name, Real radius,
+	Entity* entity, SceneNode* node)
 {
-	Entity* entity = mSceneMgr->createEntity(name + "_ent", mesh);
-	SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-		name + "_node");
-	node->attachObject(entity);
+	if(!entity)
+		entity = mSceneMgr->createEntity(name + "_ent", SceneManager::PT_SPHERE);
+	if(!node)
+	{
+		node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			name + "_node");
+		node->attachObject(entity);
+	}
 
-	AnimatedMeshToShapeConverter conv(entity);
+	CollisionShape* shape = new SphereCollisionShape(radius);
+	shape->getBulletShape()->setLocalScaling(OgreBtConverter::to(node->getScale()));
+	RigidBody* body = new RigidBody(name + "_phys", mWorld);
+	body->setShape(node,
+		shape,
+		default_restitution,
+		default_friction,
+		default_mass,
+		Vector3::ZERO,
+		Quaternion::IDENTITY);
+
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	return objects.back();
+}
+
+SharedPtr<GameObject> World::addMesh(const String& name,
+	const String& mesh, bool kinematic, Entity* entity, SceneNode* node)
+{
+	if(!entity)
+		entity = mSceneMgr->createEntity(name + "_ent", mesh);
+	if(!node)
+	{
+		node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			name + "_node");
+		node->attachObject(entity);
+	}
+
+	// TODO : анимированные меши в физике
+	StaticMeshToShapeConverter conv(entity);
 	CollisionShape* shape = conv.createConvexDecomposition();
+	shape->getBulletShape()->setLocalScaling(OgreBtConverter::to(node->getScale()));
 
 	RigidBody* body = new RigidBody(name + "_phys", mWorld);
 	body->setShape(node,
@@ -186,7 +231,8 @@ SharedPtr<GameObject> World::addMesh(const Ogre::String& name,
 	if(kinematic)
 		body->disableDeactivation();
 
-	return SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body));
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	return objects.back();
 }
 
 Ogre::SharedPtr<Character> World::createPlayer(const Ogre::String& mesh)

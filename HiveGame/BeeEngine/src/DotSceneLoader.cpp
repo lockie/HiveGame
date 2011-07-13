@@ -17,6 +17,8 @@
     along with HiveGame.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <limits>
+
 #include "DotSceneLoader.hpp"
 #include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
@@ -36,8 +38,11 @@
 #include "Noise/Perlin/Perlin.h"
 #include "Modules/ProjectedGrid/ProjectedGrid.h"
 
+#include "World.hpp"
+
 #ifdef _MSC_VER
 # pragma warning(disable:4390)
+# define isnan _isnan
 #endif  // _MSC_VER
 
 
@@ -1048,7 +1053,10 @@ void DotSceneLoader::processEntity(rapidxml::xml_node<>* XMLNode, Ogre::SceneNod
 	if(pElement)
 		processUserDataReference(pElement, pEntity);
 
-	
+	// Process user data
+	pElement = XMLNode->first_node("userData");
+	if(pElement)
+		processUserData(pElement, pEntity, pParent);
 }
 
 void DotSceneLoader::processSubEntity(rapidxml::xml_node<>* XMLNode, Ogre::Entity *pEntity)
@@ -1725,4 +1733,98 @@ void DotSceneLoader::processUserDataReference(rapidxml::xml_node<>* XMLNode, Ogr
 {
 	Ogre::String str = XMLNode->first_attribute("id")->value();
 	pEntity->setUserAny(Ogre::Any(str));
+}
+
+void DotSceneLoader::processUserData(rapidxml::xml_node<>* XMLNode, Ogre::Entity *pEntity, Ogre::SceneNode *pParent)
+{
+	// Physical parameters
+	Ogre::Real physics_mass, physics_friction, physics_restitution;
+	physics_mass = physics_friction = physics_restitution = std::numeric_limits<Ogre::Real>::quiet_NaN();
+	Ogre::String physics_shape;
+
+	Ogre::String name;
+	rapidxml::xml_node<>* property = XMLNode->first_node("property");
+	if(!property)
+		return;
+	do
+	{
+		name = getAttrib(property, "name");
+		if(!name.empty())
+		{
+			if(name == "Physics::Mass")
+			{
+				if(getAttrib(property, "type") == "6")
+					physics_mass = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Physics::Friction")
+			{
+				if(getAttrib(property, "type") == "6")
+					physics_friction = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Physics::Restitution")
+			{
+				if(getAttrib(property, "type") == "6")
+					physics_restitution = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Physics::Shape")
+			{
+				if(getAttrib(property, "type") == "7")
+					physics_shape = getAttrib(property, "data");
+				continue;
+			}
+
+		}
+	} while(property = property->next_sibling());
+
+	// Load physics
+	if(!isnan(physics_mass) && !isnan(physics_friction) && !isnan(physics_restitution) && !physics_shape.empty())
+	{
+		Ogre::Vector3 oldpos = pParent->getPosition();
+		if(physics_shape == "box")
+		{
+			// TODO : non-equilateral box
+			Ogre::SharedPtr<GameObject> box = World::getSingletonPtr()->addBox(
+				pEntity->getName(),
+				1,  // TODO : scale?
+				pEntity,
+				pParent);
+			box->setMass(physics_mass);
+			box->setFriction(physics_friction);
+			box->setRestitution(physics_restitution);
+			box->setPosition(oldpos);
+		} else
+		if(physics_shape == "sphere")
+		{
+			Ogre::Vector3 hsize = pEntity->getBoundingBox().getHalfSize();
+			Ogre::SharedPtr<GameObject> sphere = World::getSingletonPtr()->addSphere(
+				pEntity->getName(),
+				std::max(hsize.x, std::max(hsize.y, hsize.z)),
+				pEntity,
+				pParent);
+			sphere->setMass(physics_mass);
+			sphere->setFriction(physics_friction);
+			sphere->setRestitution(physics_restitution);
+			sphere->setPosition(oldpos);
+		} else
+		if(physics_shape == "mesh")
+		{
+			Ogre::SharedPtr<GameObject> mesh = World::getSingletonPtr()->addMesh(
+				pEntity->getName(),
+				"",
+				false,
+				pEntity,
+				pParent);
+			mesh->setMass(physics_mass);
+			mesh->setFriction(physics_friction);
+			mesh->setRestitution(physics_restitution);
+			mesh->setPosition(oldpos);
+		}
+	}
+
 }

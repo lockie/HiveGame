@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TEMPLATES>
+	<OBJECTTEMPLATE name="Physical object">
+		<OBJECT name="physicalObject" typename="Entity Object">
+			<CUSTOMPROPERTIES>
+				<PROPERTY id="Physics::Mass" type="6" value="1" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Physics::Friction" type="6" value="0.5" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Physics::Restitution" type="6" value="0.1" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Physics::Shape" type="7" value="box" autooptiontype="0" options="box;box;sphere;sphere;mesh;mesh;"></PROPERTY>
+			</CUSTOMPROPERTIES>
+		</OBJECT>
+	</OBJECTTEMPLATE>
+</TEMPLATES>

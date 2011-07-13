@@ -115,6 +115,7 @@
 		void processBlendmaps(rapidxml::xml_node<>* XMLNode);
 		void processUserDataReference(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent = 0);
 		void processUserDataReference(rapidxml::xml_node<>* XMLNode, Ogre::Entity *pEntity);
+		void processUserData(rapidxml::xml_node<>* XMLNode, Ogre::Entity *pEntity, Ogre::SceneNode *pParent);
 		void processOctree(rapidxml::xml_node<>* XMLNode);
 		void processLight(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent = 0);
 		void processCamera(rapidxml::xml_node<>* XMLNode, Ogre::SceneNode *pParent = 0);

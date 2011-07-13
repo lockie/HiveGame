@@ -51,9 +51,14 @@ public:
 		int xsegments = 1, int ysegments = 1,
 		Ogre::Real uTile = 1.0f, Ogre::Real vTile = 1.0f);
 	Ogre::SharedPtr<GameObject> addBox(const Ogre::String& name,
-		Ogre::Real size);
+		Ogre::Real size,
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
+	Ogre::SharedPtr<GameObject> addSphere(const Ogre::String& name,
+		Ogre::Real radius,
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
 	Ogre::SharedPtr<GameObject> addMesh(const Ogre::String& name,
-		const Ogre::String& mesh, bool kinematic = false);
+		const Ogre::String& mesh, bool kinematic = false,
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
 	Ogre::SharedPtr<Character> createPlayer(const Ogre::String& mesh);
 
 	void getTime(int& hour, int& minute, int& second);
@@ -72,6 +77,7 @@ private:
 	Ogre::PageManager* mTerrainPageManager;
 	Ogre::TerrainPaging* mTerrainPaging;
 	std::vector<Forests::PagedGeometry*> mPagedGeometryHandles;
+	std::vector< Ogre::SharedPtr<GameObject> > objects;
 	OgreBulletDynamics::DynamicsWorld* mWorld;
 	OgreBulletCollisions::DebugDrawer* debugDrawer;
 	Caelum::CaelumSystem *mCaelum;
