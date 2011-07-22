@@ -106,7 +106,8 @@ void GameObject::setFriction(Real frict)
 
 void GameObject::setMass(Real mass)
 {
-	mShape->getBulletShape()->calculateLocalInertia(mass, btVector3(0, 0, 0));
+	btVector3 localInertia = btVector3(0, 0, 0);
+	mShape->getBulletShape()->calculateLocalInertia(mass, localInertia);
 }
 
 void GameObject::setVelocity(const Vector3& vel)

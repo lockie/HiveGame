@@ -243,14 +243,14 @@ void BeeEngine::setupResources()
 		{
 			// Добавляем в менеджер ресурсов субдиректории data первого уровня
 			if( is_directory(*it) && find(std_dirs, std_dirs_end,
-				(*it).filename().string()) != std_dirs_end )
+				(*it).filename()) != std_dirs_end )
 					ResourceGroupManager::getSingleton()
 					.addResourceLocation(
 						(*it).string(),
 						"FileSystem",
 						ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 			// И zip-архивы data/*.zip
-			else if((*it).extension().string() == ".zip")
+			else if((*it).extension() == ".zip")
 				ResourceGroupManager::getSingleton().addResourceLocation(
 					(*it).string(),
 					"Zip",
@@ -305,8 +305,12 @@ bool BeeEngine::setup()
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	pluginsDir = ".\\";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+# if OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
+	pluginsDir = "/usr/lib64/OGRE/";
+# else  // OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
 	pluginsDir = "/usr/lib/OGRE/";
-#endif
+# endif  // OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
+#endif  // OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	loadPlugins(pluginsDir);
 
 	LogManager::getSingleton().setLogDetail(LL_BOREME);
