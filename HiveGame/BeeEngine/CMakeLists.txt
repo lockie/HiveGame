@@ -30,6 +30,10 @@ include_directories(${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
 	${OGRE_Paging_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}
+	${OPENAL_INCLUDE_DIR}
+	${OGG_INCLUDE_DIRS}
+	${VORBISFILE_INCLUDE_DIRS}
+	"../OgreOggSound/include"
 	${BULLET_INCLUDE_DIRS}
 	"include"
 	"../OgreBullet/Collisions/include"

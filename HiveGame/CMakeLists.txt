@@ -75,6 +75,25 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
+# Найти OpenAL
+#
+find_package(OpenAL REQUIRED)
+if(NOT OPENAL_FOUND)
+	message(SEND_ERROR "Failed to find OpenAL.")
+endif()
+
+# Собрать libogg
+#
+add_subdirectory("libogg")
+
+# Собрать libvorbis
+#
+add_subdirectory("libvorbis")
+
+# Собрать OgreOggSound
+#
+add_subdirectory("OgreOggSound")
+
 # Собрать Bullet
 #
 add_subdirectory("Bullet")

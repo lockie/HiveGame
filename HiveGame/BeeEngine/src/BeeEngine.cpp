@@ -27,6 +27,7 @@
 using namespace std;
 using namespace boost::filesystem;
 using namespace Ogre;
+using namespace OgreOggSound;
 
 
 typedef std::vector<path> pathlist;
@@ -190,6 +191,11 @@ void BeeEngine::createFrameListener()
 	AxisAlignedBox bounds(Vector3(-10000, -10000, -10000),  Vector3 (10000,  10000,  10000));
 	mRoot->addFrameListener(new World(mSceneMgr, mViewport, mResourcesDir, gravity, bounds));
 
+	mSoundManager = OgreOggSoundManager::getSingletonPtr();
+	mSoundManager->init();
+	mSoundManager->createSound("Ambient", "mistonwater.ogg", false, false, true);
+	mSoundManager->getSound("Ambient")->play();
+
 	mRoot->addFrameListener(this);
 }
 
@@ -236,7 +242,7 @@ void BeeEngine::setupResources()
 Скачайте архив data.zip с https://github.com/fake-human/HiveGame и распакуйте \
 его в директорию \"data\" в директории с игрой.\n", "BeeEngine");
 
-	static const char* std_dirs[] = { "maps", "models", "materials", "shaders" };
+	static const char* std_dirs[] = { "maps", "models", "materials", "shaders", "sounds" };
 	const char** std_dirs_end = std_dirs + sizeof(std_dirs) / sizeof(char*);
 	for(pathlist::const_iterator it(files.begin()); it != files.end(); ++it)
 		try
@@ -341,19 +347,23 @@ bool BeeEngine::setup()
 
 bool BeeEngine::loadPlugins(const String& plugins_dir)
 {
-	String debug_suffix;
+	String platform_debug_suffix, debug_suffix;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 # ifdef _DEBUG
-	debug_suffix = "_d";
+	platform_debug_suffix = "_d";
 # endif
+#endif
+#ifdef _DEBUG
+	debug_suffix = "_d";
 #endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	mRoot->loadPlugin(plugins_dir + "RenderSystem_Direct3D9" + debug_suffix);
+	mRoot->loadPlugin(plugins_dir + "RenderSystem_Direct3D9" + platform_debug_suffix);
 	// TODO : Direct3D 10 и 11
 #endif
-	mRoot->loadPlugin(plugins_dir + "RenderSystem_GL" + debug_suffix);
-	mRoot->loadPlugin(plugins_dir + "Plugin_CgProgramManager" + debug_suffix);
+	mRoot->loadPlugin(plugins_dir + "RenderSystem_GL" + platform_debug_suffix);
+	mRoot->loadPlugin(plugins_dir + "Plugin_CgProgramManager" + platform_debug_suffix);
+	mRoot->loadPlugin("./OgreOggSound" + debug_suffix);
 
 	return true; // TODO : обработку исключений с просьбой переустановить
 }
