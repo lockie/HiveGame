@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 # define the project
 project(BeeEngine)
 
+configure_file(include/config.h.in config.h)
+
 set(HDRS
 	include/BeeEngine.hpp
 	include/CharacterManager.hpp
@@ -26,7 +28,8 @@ set(SRCS
 # build static libs by default
 set(BUILD_SHARED_LIBS OFF)
 
-include_directories(${OGRE_INCLUDE_DIRS}
+include_directories("${CMAKE_BINARY_DIR}/BeeEngine"
+	${OGRE_INCLUDE_DIRS}
 	${OGRE_Terrain_INCLUDE_DIRS}
 	${OGRE_Paging_INCLUDE_DIRS}
 	${OIS_INCLUDE_DIRS}

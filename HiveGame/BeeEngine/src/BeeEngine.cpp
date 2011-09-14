@@ -24,6 +24,8 @@
 
 #include "BeeEngine.hpp"
 
+#include "config.h"
+
 using namespace std;
 using namespace boost::filesystem;
 using namespace Ogre;
@@ -307,17 +309,7 @@ bool BeeEngine::setup()
 	// TODO : ogre.cfg хранить в своём конфиге
 	mRoot = new Root(StringUtil::BLANK, "ogre.cfg", "BeeEngine.log");
 
-	String pluginsDir;
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	pluginsDir = ".\\";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-# if OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
-	pluginsDir = "/usr/lib64/OGRE/";
-# else  // OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
-	pluginsDir = "/usr/lib/OGRE/";
-# endif  // OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
-#endif  // OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	loadPlugins(pluginsDir);
+	loadPlugins(PLUGINS_DIR);
 
 	LogManager::getSingleton().setLogDetail(LL_BOREME);
 
