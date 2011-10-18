@@ -30,6 +30,8 @@
 
 #include "Hydrax.h"
 
+#include "OgreOggSound.h"
+
 #include "Terrain.hpp"
 #include "GameObject.hpp"
 #include "Character.hpp"
@@ -52,14 +54,18 @@ public:
 		Ogre::Real uTile = 1.0f, Ogre::Real vTile = 1.0f);
 	Ogre::SharedPtr<GameObject> addBox(const Ogre::String& name,
 		Ogre::Real size,
-		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL,
+		const Ogre::String& soundfile = "");
 	Ogre::SharedPtr<GameObject> addSphere(const Ogre::String& name,
 		Ogre::Real radius,
-		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL,
+		const Ogre::String& soundfile = "");
 	Ogre::SharedPtr<GameObject> addMesh(const Ogre::String& name,
 		const Ogre::String& mesh, bool kinematic = false,
-		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL);
-	Ogre::SharedPtr<Character> createPlayer(const Ogre::String& mesh);
+		Ogre::Entity* entity = NULL, Ogre::SceneNode* node = NULL,
+		const Ogre::String& soundfile = "");
+	Ogre::SharedPtr<Character> createPlayer(const Ogre::String& mesh,
+		Ogre::SceneNode* cameraNode);
 
 	void getTime(int& hour, int& minute, int& second);
 
@@ -84,6 +90,7 @@ private:
 	Hydrax::Hydrax *mHydrax;
 	Ogre::Vector3 mOriginalWaterColor;
 	bool mHydraxCaelumIntegration;
+	OgreOggSound::OgreOggSoundManager* mSoundManager;
 
 };
 

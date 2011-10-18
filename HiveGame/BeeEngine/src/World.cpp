@@ -41,6 +41,7 @@ using namespace Ogre;
 using namespace OgreBulletDynamics;
 using namespace OgreBulletCollisions;
 using namespace Forests;
+using namespace OgreOggSound;
 
 
 static const float default_restitution = 0.1f;
@@ -55,13 +56,13 @@ mSceneMgr(sceneMgr), mViewPort(viewPort), mResourcesDir(resourcesDir),
 mTerrainGlobalOptions(NULL), mTerrainGroup(NULL),
 mTerrainPageManager(NULL), mTerrainPaging(NULL)
 {
-	// ¬ÍÎ˛˜ËÚ¸ Bullet
+	// –í–∫–ª—é—á–∏—Ç—å Bullet
 	mWorld = new DynamicsWorld(mSceneMgr, bounds, gravityVector);
 	// http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=6773
 	mWorld->getBulletCollisionWorld()->getDispatchInfo().
 		m_allowedCcdPenetration = 0.0001f;
 
-	// ¬ÍÎ˛˜ËÚ¸ ÓÚÎ‡‰Ó˜ÌÛ˛ ËÒÓ‚‡¯ÍÛ
+	// –í–∫–ª—é—á–∏—Ç—å –æ—Ç–ª–∞–¥–æ—á–Ω—É—é —Ä–∏—Å–æ–≤–∞—à–∫—É
 	debugDrawer = new DebugDrawer();
 	debugDrawer->setDrawWireframe(true);
 	mWorld->setDebugDrawer(debugDrawer);
@@ -71,6 +72,11 @@ mTerrainPageManager(NULL), mTerrainPaging(NULL)
 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
 
 	mTerrainProvider = new TerrainProvider(mWorld);
+
+	// –í–∫–ª—é—á–∏—Ç—å –∑–≤—É–∫
+	mSoundManager = OgreOggSoundManager::getSingletonPtr();
+	mSoundManager->init();
+	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 
 	ms_Singleton = this;
 }
@@ -117,9 +123,14 @@ bool World::Load(const String& filename)
 	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
 		it != mPagedGeometryHandles.end(); ++it)
 	{
-		// ÂÒÎË Á‰ÂÒ¸ Û¯ËÚÒˇ, ÒÏ. BeeEngine::createCamera()
+		// –µ—Å–ª–∏ –∑–¥–µ—Å—å —Ä—É—à–∏—Ç—Å—è, —Å–º. BeeEngine::createCamera()
 		(*it)->setCamera(mSceneMgr->getCamera("PlayerCamera"));
 		(*it)->update();
+	}
+	for(std::vector< SharedPtr<GameObject> >::iterator it = objects.begin();
+		it != objects.end(); ++it)
+	{
+		(*it)->startSound();
 	}
 
 	return true;
@@ -142,12 +153,12 @@ SharedPtr<GameObject> World::addPlane(const Ogre::String& name, const Plane& p,
 	RigidBody* body = new RigidBody(name + "_phys", mWorld);
 	body->setStaticShape(shape, default_restitution, default_friction);
 
-	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body, NULL)));
 	return objects.back();
 }
 
 SharedPtr<GameObject> World::addBox(const String& name, Real size,
-	Entity* entity, SceneNode* node)
+	Entity* entity, SceneNode* node, const String& soundfile)
 {
 	if(!entity)
 		entity = mSceneMgr->createEntity(name + "_ent", "cube.mesh");
@@ -171,12 +182,20 @@ SharedPtr<GameObject> World::addBox(const String& name, Real size,
 		Vector3::ZERO,
 		Quaternion::IDENTITY);
 
-	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	OgreOggISound* sound = NULL;
+	if(!soundfile.empty())
+	{
+		sound = mSoundManager->createSound(name + "_sound",
+			soundfile, false, true);
+		node->attachObject(sound);
+	}
+
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body, sound)));
 	return objects.back();
 }
 
 SharedPtr<GameObject> World::addSphere(const String& name, Real radius,
-	Entity* entity, SceneNode* node)
+	Entity* entity, SceneNode* node, const String& soundfile)
 {
 	if(!entity)
 		entity = mSceneMgr->createEntity(name + "_ent", SceneManager::PT_SPHERE);
@@ -198,12 +217,20 @@ SharedPtr<GameObject> World::addSphere(const String& name, Real radius,
 		Vector3::ZERO,
 		Quaternion::IDENTITY);
 
-	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	OgreOggISound* sound = NULL;
+	if(!soundfile.empty())
+	{
+		sound = mSoundManager->createSound(name + "_sound",
+			soundfile, false, true);
+		node->attachObject(sound);
+	}
+
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body, sound)));
 	return objects.back();
 }
 
 SharedPtr<GameObject> World::addMesh(const String& name,
-	const String& mesh, bool kinematic, Entity* entity, SceneNode* node)
+	const String& mesh, bool kinematic, Entity* entity, SceneNode* node, const String& soundfile)
 {
 	if(!entity)
 		entity = mSceneMgr->createEntity(name + "_ent", mesh);
@@ -214,7 +241,7 @@ SharedPtr<GameObject> World::addMesh(const String& name,
 		node->attachObject(entity);
 	}
 
-	// TODO : ‡ÌËÏËÓ‚‡ÌÌ˚Â ÏÂ¯Ë ‚ ÙËÁËÍÂ
+	// TODO : –∞–Ω–∏–º–∏—Ä–æ–≤–∞–Ω–Ω—ã–µ –º–µ—à–∏ –≤ —Ñ–∏–∑–∏–∫–µ
 	StaticMeshToShapeConverter conv(entity);
 	CollisionShape* shape = conv.createConvexDecomposition();
 	shape->getBulletShape()->setLocalScaling(OgreBtConverter::to(node->getScale()));
@@ -231,21 +258,33 @@ SharedPtr<GameObject> World::addMesh(const String& name,
 	if(kinematic)
 		body->disableDeactivation();
 
-	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body)));
+	OgreOggISound* sound = NULL;
+	if(!soundfile.empty())
+	{
+		sound = mSoundManager->createSound(name + "_sound",
+			soundfile, false, true);
+		node->attachObject(sound);
+	}
+
+	objects.push_back(SharedPtr<GameObject>(new GameObject(name, mSceneMgr, entity, node, shape, body, sound)));
 	return objects.back();
 }
 
-Ogre::SharedPtr<Character> World::createPlayer(const Ogre::String& mesh)
+SharedPtr<Character> World::createPlayer(const String& mesh, SceneNode* camNode)
 {
 	Entity* entity = mSceneMgr->createEntity("Player",
 		mesh);
 	SceneNode* node = mSceneMgr->getRootSceneNode()->
 		createChildSceneNode(Vector3::UNIT_Y * entity->getBoundingRadius());
 	node->attachObject(entity);
+	node->attachObject(mSoundManager->getListener());
+	//camNode->attachObject(mSoundManager->getListener());
+	// TODO : —Ç–∞–∫ –Ω–∞—á–∏–Ω–∞–µ—Ç –∑–≤—É—á–∞—Ç—å –µ—â—ë –¥–æ —Ç–æ–≥–æ, –∫–∞–∫ –Ω–∞—á–∞–ª—Å—è —Ä–µ–Ω–¥–µ—Ä. –ü—Ä–∏–¥—É–º–∞—Ç—å
+	//  —á—Ç–æ-–Ω–∏–±—É–¥—å.
 
 	Vector3 size = entity->getBoundingBox().getSize();
 	Real factor = 1 - Ogre::MeshManager::getSingleton().getBoundsPaddingFactor();
-	// ËÁ ‰ÓÍÛÏÂÌÚ‡ˆËË Í Bullet:
+	// –∏–∑ –¥–æ–∫—É–º–µ–Ω—Ç–∞—Ü–∏–∏ –∫ Bullet:
 	//  The total height is height+2*radius, so the height is just the height
 	//  between the center of each 'sphere' of the capsule caps.
 	Real radius = factor * std::max(size.x, size.z) / 2;
@@ -366,5 +405,6 @@ bool World::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	for(std::vector<PagedGeometry*>::iterator it = mPagedGeometryHandles.begin();
 		it != mPagedGeometryHandles.end(); ++it)
 		(*it)->update();
+	mSoundManager->update(evt.timeSinceLastFrame);
 	return true;
 }

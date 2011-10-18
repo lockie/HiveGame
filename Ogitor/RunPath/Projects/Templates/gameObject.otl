@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TEMPLATES>
-	<OBJECTTEMPLATE name="Physical object">
-		<OBJECT name="physicalObject" typename="Entity Object">
+	<OBJECTTEMPLATE name="Game object">
+		<OBJECT name="gameObject" typename="Entity Object">
 			<CUSTOMPROPERTIES>
 				<PROPERTY id="Physics::Mass" type="6" value="1" autooptiontype="0"></PROPERTY>
 				<PROPERTY id="Physics::Friction" type="6" value="0.5" autooptiontype="0"></PROPERTY>
 				<PROPERTY id="Physics::Restitution" type="6" value="0.1" autooptiontype="0"></PROPERTY>
 				<PROPERTY id="Physics::Shape" type="7" value="box" autooptiontype="0" options="box;box;sphere;sphere;mesh;mesh;"></PROPERTY>
+				<PROPERTY id="Sound::File" type="7" value="" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Sound::Volume" type="6" value="0.9" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Sound::ReferenceDistance" type="6" value="10" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Sound::MaxDistance" type="6" value="100" autooptiontype="0"></PROPERTY>
+				<PROPERTY id="Sound::RolloffFactor" type="6" value="2" autooptiontype="0"></PROPERTY>
 			</CUSTOMPROPERTIES>
 		</OBJECT>
 	</OBJECTTEMPLATE>

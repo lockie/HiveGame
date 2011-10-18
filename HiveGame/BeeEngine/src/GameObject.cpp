@@ -24,6 +24,7 @@
 using namespace Ogre;
 using namespace OgreBulletDynamics;
 using namespace OgreBulletCollisions;
+using namespace OgreOggSound;
 
 
 GameObject::~GameObject()
@@ -71,7 +72,7 @@ void GameObject::setScale(const Ogre::Vector3& scale)
 	mShape->getBulletShape()->setLocalScaling(
 		OgreBtConverter::to(scale));
 	
-	// мы сменили форму физического тела, поэтому нужно пересоздать тело
+	// РјС‹ СЃРјРµРЅРёР»Рё С„РѕСЂРјСѓ С„РёР·РёС‡РµСЃРєРѕРіРѕ С‚РµР»Р°, РїРѕСЌС‚РѕРјСѓ РЅСѓР¶РЅРѕ РїРµСЂРµСЃРѕР·РґР°С‚СЊ С‚РµР»Рѕ
 	btScalar restitution = mBody->getBulletRigidBody()->getRestitution(),
 		friction = mBody->getBulletRigidBody()->getFriction(),
 		mass = mBody->getBulletRigidBody()->getInvMass();
@@ -81,7 +82,7 @@ void GameObject::setScale(const Ogre::Vector3& scale)
 	delete mBody;
 	mBody = new RigidBody(mName + "_phys", world);
 
-	// ... и установить новую форму
+	// ... Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅРѕРІСѓСЋ С„РѕСЂРјСѓ
 	mBody->setShape(mNode, mShape, restitution, friction, mass, 
 		mNode->getPosition(), mNode->getOrientation());
 	mBody->setKinematicObject(kinematic);
@@ -115,9 +116,41 @@ void GameObject::setVelocity(const Vector3& vel)
 	mBody->setLinearVelocity(vel);
 }
 
+void GameObject::setSoundVolume(Real volume)
+{
+	mSound->setVolume(volume);
+}
+
+void GameObject::setSoundReferenceDistance(Real dist)
+{
+	mSound->setReferenceDistance(dist);
+}
+
+void GameObject::setSoundMaxDistance(Real dist)
+{
+	mSound->setMaxDistance(dist);
+}
+
+void GameObject::setSoundRolloffFactor(Real factor)
+{
+	mSound->setRolloffFactor(factor);
+}
+
+void GameObject::startSound()
+{
+	if(mSound)
+		mSound->play();
+}
+
+void GameObject::stopSound()
+{
+	if(mSound)
+		mSound->stop();
+}
+
 GameObject::GameObject(const String& name, Ogre::SceneManager* parent,
 	Entity* entity, SceneNode* node,
-	CollisionShape* shape, RigidBody* body) : 
- mSceneMgr(parent), mName(name), mEntity(entity), mNode(node), mShape(shape), mBody(body)
+	CollisionShape* shape, RigidBody* body, OgreOggISound* sound) : 
+ mSceneMgr(parent), mName(name), mEntity(entity), mNode(node), mShape(shape), mBody(body), mSound(sound)
 {
 }

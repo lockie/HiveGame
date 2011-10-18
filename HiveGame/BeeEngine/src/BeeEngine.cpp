@@ -29,7 +29,6 @@
 using namespace std;
 using namespace boost::filesystem;
 using namespace Ogre;
-using namespace OgreOggSound;
 
 
 typedef std::vector<path> pathlist;
@@ -193,11 +192,6 @@ void BeeEngine::createFrameListener()
 	AxisAlignedBox bounds(Vector3(-10000, -10000, -10000),  Vector3 (10000,  10000,  10000));
 	mRoot->addFrameListener(new World(mSceneMgr, mViewport, mResourcesDir, gravity, bounds));
 
-	mSoundManager = OgreOggSoundManager::getSingletonPtr();
-	mSoundManager->init();
-	mSoundManager->createSound("Ambient", "mistonwater.ogg", false, false, true);
-	mSoundManager->getSound("Ambient")->play();
-
 	mRoot->addFrameListener(this);
 }
 
@@ -331,8 +325,8 @@ bool BeeEngine::setup()
 
 	loadResources();
 	createFrameListener();
-	createScene();
 	setupCharacter();
+	createScene();
 
 	return true;
 };

@@ -1737,10 +1737,18 @@ void DotSceneLoader::processUserDataReference(rapidxml::xml_node<>* XMLNode, Ogr
 
 void DotSceneLoader::processUserData(rapidxml::xml_node<>* XMLNode, Ogre::Entity *pEntity, Ogre::SceneNode *pParent)
 {
+	Ogre::SharedPtr<GameObject> object;
+
 	// Physical parameters
 	Ogre::Real physics_mass, physics_friction, physics_restitution;
 	physics_mass = physics_friction = physics_restitution = std::numeric_limits<Ogre::Real>::quiet_NaN();
 	Ogre::String physics_shape;
+
+	// Sound parameters
+	Ogre::String sound_filename;
+	Ogre::Real sound_volume, sound_reference_distance, sound_max_distance, sound_rolloff_factor;
+	sound_volume = sound_reference_distance = sound_max_distance = sound_rolloff_factor =
+		std::numeric_limits<Ogre::Real>::quiet_NaN();
 
 	Ogre::String name;
 	rapidxml::xml_node<>* property = XMLNode->first_node("property");
@@ -1779,52 +1787,97 @@ void DotSceneLoader::processUserData(rapidxml::xml_node<>* XMLNode, Ogre::Entity
 				continue;
 			}
 
+			if(name == "Sound::File")
+			{
+				if(getAttrib(property, "type") == "7")
+					sound_filename = getAttrib(property, "data");
+				continue;
+			}
+
+			if(name == "Sound::Volume")
+			{
+				if(getAttrib(property, "type") == "6")
+					sound_volume = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Sound::ReferenceDistance")
+			{
+				if(getAttrib(property, "type") == "6")
+					sound_reference_distance = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Sound::MaxDistance")
+			{
+				if(getAttrib(property, "type") == "6")
+					sound_max_distance = getAttribReal(property, "data");
+				continue;
+			}
+
+			if(name == "Sound::RolloffFactor")
+			{
+				if(getAttrib(property, "type") == "6")
+					sound_rolloff_factor = getAttribReal(property, "data");
+				continue;
+			}
 		}
 	} while(property = property->next_sibling());
 
-	// Load physics
+	// Load physics & sound
 	if(!isnan(physics_mass) && !isnan(physics_friction) && !isnan(physics_restitution) && !physics_shape.empty())
 	{
 		Ogre::Vector3 oldpos = pParent->getPosition();
 		if(physics_shape == "box")
-		{
 			// TODO : non-equilateral box
-			Ogre::SharedPtr<GameObject> box = World::getSingletonPtr()->addBox(
+			object = World::getSingletonPtr()->addBox(
 				pEntity->getName(),
 				1,  // TODO : scale?
 				pEntity,
-				pParent);
-			box->setMass(physics_mass);
-			box->setFriction(physics_friction);
-			box->setRestitution(physics_restitution);
-			box->setPosition(oldpos);
-		} else
+				pParent,
+				sound_filename);
+		else
 		if(physics_shape == "sphere")
 		{
 			Ogre::Vector3 hsize = pEntity->getBoundingBox().getHalfSize();
-			Ogre::SharedPtr<GameObject> sphere = World::getSingletonPtr()->addSphere(
+			object = World::getSingletonPtr()->addSphere(
 				pEntity->getName(),
 				std::max(hsize.x, std::max(hsize.y, hsize.z)),
 				pEntity,
-				pParent);
-			sphere->setMass(physics_mass);
-			sphere->setFriction(physics_friction);
-			sphere->setRestitution(physics_restitution);
-			sphere->setPosition(oldpos);
+				pParent,
+				sound_filename);
 		} else
 		if(physics_shape == "mesh")
-		{
-			Ogre::SharedPtr<GameObject> mesh = World::getSingletonPtr()->addMesh(
+			object = World::getSingletonPtr()->addMesh(
 				pEntity->getName(),
 				"",
 				false,
 				pEntity,
-				pParent);
-			mesh->setMass(physics_mass);
-			mesh->setFriction(physics_friction);
-			mesh->setRestitution(physics_restitution);
-			mesh->setPosition(oldpos);
+				pParent,
+				sound_filename);
+		if(!object.isNull())
+		{
+			object->setMass(physics_mass);
+			object->setFriction(physics_friction);
+			object->setRestitution(physics_restitution);
+			object->setPosition(oldpos);
 		}
 	}
+	if(object.isNull())  // TODO : consider partial initialization, like w/out physics
+		object = World::getSingletonPtr()->addMesh(
+			pEntity->getName(),
+			"",
+			true,
+			pEntity,
+			pParent,
+			sound_filename);
 
+	if(!isnan(sound_volume))
+		object->setSoundVolume(sound_volume);
+	if(!isnan(sound_reference_distance))
+		object->setSoundReferenceDistance(sound_reference_distance);
+	if(!isnan(sound_max_distance))
+		object->setSoundMaxDistance(sound_max_distance);
+	if(!isnan(sound_rolloff_factor))
+		object->setSoundRolloffFactor(sound_rolloff_factor);
 }

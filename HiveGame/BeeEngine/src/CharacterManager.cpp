@@ -86,7 +86,7 @@ bool CharacterManager::setModel(const String& filename)
 		return false;
 	try
 	{
-		mPlayer = World::getSingletonPtr()->createPlayer(filename);
+		mPlayer = World::getSingletonPtr()->createPlayer(filename, mCameraNode);
 		mPlayer->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
 		return true;
 	} catch(Exception&)

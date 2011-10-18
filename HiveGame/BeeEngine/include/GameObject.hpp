@@ -22,6 +22,8 @@
 
 #include <OgreBulletDynamics.h>
 
+#include <OgreOggISound.h>
+
 
 class GameObject
 {
@@ -29,7 +31,7 @@ friend class World;
 public:
 	virtual ~GameObject();
 
-	// Геометрические свойства
+	// Р“РµРѕРјРµС‚СЂРёС‡РµСЃРєРёРµ СЃРІРѕР№СЃС‚РІР°
 	//
 	const Ogre::Vector3& getPosition() const;
 	void setPosition(const Ogre::Vector3&);
@@ -39,22 +41,35 @@ public:
 	void setScale(const Ogre::Vector3&);
 	void setMaterial(const Ogre::String&);
 
-	// Физические свойства
+	// Р¤РёР·РёС‡РµСЃРєРёРµ СЃРІРѕР№СЃС‚РІР°
 	//
-	// прыгучесть
+	// РїСЂС‹РіСѓС‡РµСЃС‚СЊ
 	void setRestitution(Ogre::Real);
-	// трение
+	// С‚СЂРµРЅРёРµ
 	void setFriction(Ogre::Real);
-	// масса
+	// РјР°СЃСЃР°
 	void setMass(Ogre::Real);
-	// скорость
+	// СЃРєРѕСЂРѕСЃС‚СЊ
 	void setVelocity(const Ogre::Vector3&);
+
+	// Р—РІСѓРєРѕРІС‹Рµ СЃРІРѕР№СЃС‚РІР°
+	//
+	// РіСЂРѕРјРєРѕСЃС‚СЊ
+	void setSoundVolume(Ogre::Real);
+	void setSoundReferenceDistance(Ogre::Real);
+	void setSoundMaxDistance(Ogre::Real);
+	void setSoundRolloffFactor(Ogre::Real);
+	// РІРєР»/РІС‹РєР»
+	void startSound();
+	void stopSound();
+
 
 protected:
 	GameObject(const Ogre::String& name, Ogre::SceneManager* parent,
 		Ogre::Entity* entity, Ogre::SceneNode* sceneNode,
 		OgreBulletCollisions::CollisionShape*,
-		OgreBulletDynamics::RigidBody*);
+		OgreBulletDynamics::RigidBody*,
+		OgreOggSound::OgreOggISound*);
 	GameObject(const GameObject&);  // copy ctor disabled
 	GameObject& operator= (const GameObject&);  // operator= disabled
 
@@ -64,6 +79,7 @@ protected:
 	Ogre::SceneNode* mNode;
 	OgreBulletCollisions::CollisionShape* mShape;
 	OgreBulletDynamics::RigidBody* mBody;
+	OgreOggSound::OgreOggISound* mSound;
 };
 
 

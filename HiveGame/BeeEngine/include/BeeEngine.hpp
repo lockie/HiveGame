@@ -34,8 +34,6 @@
 
 #include <SdkTrays.h>
 
-#include "OgreOggSoundManager.h"
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
@@ -92,7 +90,6 @@ protected:
 	Ogre::Camera* mCamera;
 	Ogre::Viewport* mViewport;
 	CharacterManager* mCharacterMan;
-	OgreOggSound::OgreOggSoundManager* mSoundManager;
 
 	Ogre::String mResourcesDir;
 
