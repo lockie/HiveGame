@@ -40,7 +40,7 @@ String ToLocalCodepage(const String str)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	// Ш1ИДОШ5 CANNOT INTO UNICODE
-	String res(str.length(), 0x32);
+	String res(str.length(), 0x20);
 	wchar_t* buff = new wchar_t[str.length()];
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buff, str.length());
 	WideCharToMultiByte(1251, 0, buff, str.length(), 
@@ -238,7 +238,8 @@ void BeeEngine::setupResources()
 Скачайте архив data.zip с https://github.com/fake-human/HiveGame и распакуйте \
 его в директорию \"data\" в директории с игрой.\n", "BeeEngine");
 
-	static const char* std_dirs[] = { "maps", "models", "materials", "shaders", "sounds" };
+	static const char* std_dirs[] =
+		{ "maps", "models", "materials", "shaders", "sounds", "ui" };
 	const char** std_dirs_end = std_dirs + sizeof(std_dirs) / sizeof(char*);
 	for(pathlist::const_iterator it(files.begin()); it != files.end(); ++it)
 		try
@@ -272,6 +273,14 @@ void BeeEngine::createResourceListener()
 void BeeEngine::loadResources()
 {
 	ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+}
+
+void BeeEngine::createGUI()
+{
+	mGUIPlatform = new MyGUI::OgrePlatform();
+	mGUIPlatform->initialise(mWindow, mSceneMgr);
+	mGUI = new MyGUI::Gui();
+	mGUI->initialise();
 }
 
 void BeeEngine::run()
@@ -324,6 +333,7 @@ bool BeeEngine::setup()
 	createResourceListener();
 
 	loadResources();
+	createGUI();
 	createFrameListener();
 	setupCharacter();
 	createScene();
@@ -401,6 +411,9 @@ bool BeeEngine::frameRenderingQueued(const FrameEvent& evt)
 
 bool BeeEngine::keyPressed(const OIS::KeyEvent& arg )
 {
+	MyGUI::InputManager::getInstance().injectKeyPress(
+		MyGUI::KeyCode::Enum(arg.key), arg.text);
+
 	if(mTrayMgr->isDialogVisible())
 		return true;
 
@@ -511,12 +524,16 @@ bool BeeEngine::keyPressed(const OIS::KeyEvent& arg )
 
 bool BeeEngine::keyReleased(const OIS::KeyEvent& arg)
 {
+	MyGUI::InputManager::getInstance().injectKeyRelease(
+		MyGUI::KeyCode::Enum(arg.key));
 	mCharacterMan->injectKeyUp(arg);
 	return true;
 }
 
 bool BeeEngine::mouseMoved(const OIS::MouseEvent& arg)
 {
+	MyGUI::InputManager::getInstance().injectMouseMove(
+		arg.state.X.abs, arg.state.Y.abs, arg.state.Z.abs);
 	if(mTrayMgr->injectMouseMove(arg))
 		return true;
 	mCharacterMan->injectMouseMove(arg);
@@ -525,6 +542,8 @@ bool BeeEngine::mouseMoved(const OIS::MouseEvent& arg)
 
 bool BeeEngine::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
+	MyGUI::InputManager::getInstance().injectMousePress(
+		arg.state.X.abs, arg.state.Y.abs, MyGUI::MouseButton::Enum(id));
 	if(mTrayMgr->injectMouseDown(arg, id))
 		return true;
 	mCharacterMan->injectMouseDown(arg, id);
@@ -533,6 +552,8 @@ bool BeeEngine::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
 bool BeeEngine::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
+	MyGUI::InputManager::getInstance().injectMouseRelease(
+		arg.state.X.abs, arg.state.Y.abs, MyGUI::MouseButton::Enum(id));
 	if(mTrayMgr->injectMouseUp(arg, id))
 		return true;
 	return true;

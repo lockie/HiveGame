@@ -15,6 +15,9 @@ set_target_properties(ogg PROPERTIES
 
 if(MSVC_IDE) # грязнохаки для студии
 	set_target_properties(ogg PROPERTIES PREFIX "../")
+	set_target_properties(ogg PROPERTIES
+		COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
+	)
 endif()
 
 set(OGG_LIBRARIES ogg PARENT_SCOPE)

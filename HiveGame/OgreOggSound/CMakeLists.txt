@@ -6,7 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE (CheckIncludeFileCXX)
 
 # Option.
-SET(OGGSOUND_THREADED YES CACHE BOOL "Enable multi-threaded streamed sounds")
+SET(OGGSOUND_THREADED YES)
 SET(USE_POCO OFF)
 
 IF(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -88,6 +88,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 if(MSVC_IDE) # грязнохаки для студии
 	set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "../")
+	add_definitions("/wd4244")
 endif()
 
 #INSTALL(FILES include/LocklessQueue.h

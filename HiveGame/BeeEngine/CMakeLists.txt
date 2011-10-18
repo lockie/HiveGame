@@ -46,6 +46,8 @@ include_directories("${CMAKE_BINARY_DIR}/BeeEngine"
 	"../Caelum/main/include"
 	"${Caelum_BINARY_DIR}/main/include"
 	"../Hydrax"
+	"../MyGUI/MyGUIEngine/include"
+	"../MyGUI/Platforms/Ogre/OgrePlatform/include"
 )
 
 add_library(BeeEngine STATIC ${SRCS} ${HDRS})

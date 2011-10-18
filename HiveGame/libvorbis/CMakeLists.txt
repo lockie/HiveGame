@@ -89,6 +89,16 @@ if(MSVC_IDE) # грязнохаки для студии
 	set_target_properties(vorbis PROPERTIES PREFIX "../")
 	set_target_properties(vorbisfile PROPERTIES PREFIX "../")
 endif()
+if(MSVC)
+	set_target_properties(vorbis PROPERTIES
+		COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
+	)
+	set_target_properties(vorbisfile PROPERTIES
+		COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
+	)
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /wd4244 /wd4305")
+endif()
+
 
 
 set(VORBISFILE_LIBRARIES vorbis vorbisfile vorbisenc PARENT_SCOPE)

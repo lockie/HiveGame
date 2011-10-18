@@ -34,6 +34,9 @@
 
 #include <SdkTrays.h>
 
+#include <MyGUI.h>
+#include <MyGUI_OgrePlatform.h>
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
@@ -68,6 +71,7 @@ protected:
 	virtual void setupResources();
 	virtual void createResourceListener();
 	virtual void loadResources();
+	virtual void createGUI();
 
 	// Ogre::FrameListener
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
@@ -106,6 +110,10 @@ protected:
 
 	// Копрокубы для проверки физики
 	std::vector< Ogre::SharedPtr<GameObject> > boxes;
+
+	// ГУЙ
+	MyGUI::Gui* mGUI;
+	MyGUI::OgrePlatform* mGUIPlatform;
 };
 
 #endif // #ifndef __BeeEngine_h__

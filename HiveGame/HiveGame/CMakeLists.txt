@@ -29,6 +29,8 @@ include_directories(
 	"../Caelum/main/include"
 	"${Caelum_BINARY_DIR}/main/include"
 	"../Hydrax"
+	"../MyGUI/MyGUIEngine/include"
+	"../MyGUI/Platforms/Ogre/OgrePlatform/include"
 )
 
 if(WIN32)
@@ -42,7 +44,7 @@ if(MSVC_IDE) # грязнохак для студии с её тупыми каталогами Debug и Release и экс
 	set_target_properties(Hivegame PROPERTIES LINK_FLAGS  "/implib:Hivegame.lib")
 endif()
 
-target_link_libraries(Hivegame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OGRE_Paging_LIBRARIES} ${OIS_LIBRARIES} ${OPENAL_LIBRARY} OgreOggSound ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax)
+target_link_libraries(Hivegame BeeEngine ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OGRE_Paging_LIBRARIES} ${OIS_LIBRARIES} ${OPENAL_LIBRARY} OgreOggSound ${BULLET_LIBRARIES} OgreBulletCol OgreBulletDyn PagedGeometry Caelum Hydrax MyGUIEngine MyGUI.OgrePlatform)
 set_target_properties(Hivegame PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR})
 
